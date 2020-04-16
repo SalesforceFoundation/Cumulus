@@ -117,7 +117,21 @@ class NPSPSettingsPage(BaseNPSPPage, BasePage):
             if 'slds-hide' in classname:
                 self.builtin.log("As expected Advanced Mapping is not enabled by default")
             else:
-                raise Exception("Advanced Mapping is already enabled. Org should not have this enabled by default") 
+                raise Exception("Advanced Mapping is already enabled. Org should not have this enabled by default")    
+            
+            
+#     def enable_advanced_mapping_and_gift_entry(self):
+#         locator=npsp_lex_locators['id'].format("navigateAdvancedMapping")
+#         if self.npsp.check_if_element_exists(locator):
+#             ele=self.selenium.get_webelement(locator)
+#             classname=ele.get_attribute("class") 
+#             if 'slds-hide' in classname:
+#                 self.builtin.log("As expected Advanced Mapping is not enabled by default")
+#                 self.click_toggle_button("Advanced Mapping")
+#                 self.wait_for_message("Advanced Mapping is enabled")
+#             else:
+#                 self.builtin.log("Advanced Mapping is already enabled. Org should not have this enabled by default")
+
             
             
     def Enable_advanced_mapping_if_not_enabled(self):

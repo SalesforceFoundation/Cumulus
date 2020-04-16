@@ -199,7 +199,15 @@ Open NPSP Settings
 Click Data Import Button
     [Arguments]       ${frame_name}    ${ele_path}     @{others}
     Select Frame And Click Element    ${frame_name}    ${ele_path}     @{others}
-       
+
+Run Accessibility Check
+    [Arguments]       &{css_selector}
+    Inject Axe Core Library
+    &{results}    Get Axe Analysis Results      &{css_selector}
+    Log Summary Of Results    ${results}
+    Warn On Incomplete Rules    ${results}
+    Warn On Violations Rules    ${results}    
+      
      
 Process Data Import Batch
     [Documentation]        Go to NPSP Data Import Page and change view to 'To be Imported' and Process Batch

@@ -1,5 +1,7 @@
 import logging
 import warnings
+import json
+import os
 import time
 import random
 import string
@@ -24,6 +26,9 @@ from email.mime import text
 
 from cumulusci.tasks.apex.anon import AnonymousApexTask
 from cumulusci.core.config import TaskConfig
+from cumulusci.tasks.apex.batch import BatchApexWait
+from robot.api import logger
+from cgi import escape
 
 from tasks.salesforce_robot_library_base import SalesforceRobotLibraryBase
 from BaseObjects import BaseNPSPPage
@@ -1157,23 +1162,128 @@ class NPSP(BaseNPSPPage,SalesforceRobotLibraryBase):
         """  
         locator = npsp_lex_locators["record"]["related"]["button"].format(heading, button_title)
         element = self.selenium.driver.find_element_by_xpath(locator)
-        self.selenium.driver.execute_script('arguments[0].click()', element)   
-            
-        
-#     def wait_until_url_contains(self,exp_text):
-#         """Waits for maximum of 90sec for current url to contain the exp_text"""
-#         self.builtin.log("This keyword can be removed once we support SeleniumLibrary 4.0.")
-#         url=self.selenium.get_location()
-#         i=0
-#         for i in range(10):
-#             if i == 9:
-#                 raise AssertionError("Failed to find an url containing {} in 90 seconds".format(exp_text))
-#             if exp_text in url:
-#                 break
-#             else:
-#                 time.sleep(10)
-#                 url=self.selenium.get_location()
-#                 i += 1
+        self.selenium.driver.execute_script('arguments[0].click()', element)  
+
+# Keywords below this line are for accessibility testing 
+
+
+
+    def inject_axe_core_library(self):
+        path = os.path.dirname(os.path.abspath(__file__))
+        self.selenium.execute_javascript(path + "/axe.js")
+    
+    
+    def get_axe_analysis_results(self,cssSelector = None):    
+        context = "document"
+        if cssSelector != None:
+            context = "{include: [['%s']]}" % cssSelector
+    
+        runScript = """
+            var callback = arguments[arguments.length - 1];
+            var options = {runOnly: {type: "tag", values: ["wcag2a", "wcag2aa", "best-practice"]}};
+            var cb = function(error, results) { if (error) { throw error }; callback(results) };
+            axe.run(%s, options, cb);
+        """ % context
+        results = self.selenium.execute_async_javascript(runScript)
+        self.selenium.capture_page_screenshot()
+        return results
+    
+    
+    def log_summary_of_results(self,results):
+        """This keyword just logs the summary of results"""
+        logger.debug(results)
+    
+        passed = results["passes"]
+        inapplicable = results["inapplicable"]
+        incomplete = results["incomplete"]
+        violations = results["violations"]
+    
+        numPasses = len(results["passes"])
+        numInapplicable = len(results["inapplicable"])
+        numIncomplete = len(results["incomplete"])
+        numViolations = len(results["violations"])
+    
+        logger.info("Passed: %d, Inapplicable: %d, Incomplete: %d, Violations: %d" % (numPasses, numInapplicable, numIncomplete, numViolations))
+    
+    
+    def log_raw_results(self,results):
+        logger.info(json.dumps(results, indent=4));
+    
+    
+    def warn_on_incomplete_rules(self,results):
+        """ Prints a warn for any rules that couldn't be determined automatically. Returns the number of such warnings. """
+        for rule in results["incomplete"]:
+            self.print_result(rule, "Incomplete (requires manual review)", logger.warn)
+        return len(results["incomplete"])
+    
+    def warn_on_violations_rules(self,results):
+        """ If there are violations on the page, logs as warning and gives the details of violations on the page """
+        for rule in results["violations"]:
+            self.print_result(rule, "violation", logger.warn)
+        return len(results["violations"])
+    
+    def fail_if_there_are_violations(self,results):
+        """If there are violations on the page, returns the keyword as failed and gives the details of violations on the page"""
+        failures = ""
+        for rule in results["violations"]:
+            self.print_result(rule, "Violation")
+            failures += "  - %s: %s\n" % (rule["id"], rule["help"])
+    
+        numViolations = len(results["violations"])
+        if numViolations > 0:
+            raise Exception("Found %d violations:\n%s" % (numViolations, failures))
+    
+    
+    def print_result(self,result, preamble=None, logFunc=logger.info):
+        impact = result["impact"]
+        desc = result["description"]
+        url = result["helpUrl"]
+        ruleId = result["id"]
+        helpString = result["help"] # short string
+        tags = result["tags"] #array
+    
+        header = ""
+        if preamble != None: header = "<b>" + preamble + "</b><br/>"
+    
+        header += "[<b>%s</b>:<a href='%s'>%s</a>] %s" % (impact, url, ruleId, escape(helpString))
+        header += " (<em>Tags: " + ", ".join(result["tags"]) + "</em>)"
+        header += "<br />%s" % (escape(desc))
+        #logger.warn(header, html=True)
+    
+        message = header
+        message += "<ul>"
+    
+        for node in result["nodes"]:
+            targetString = ""
+            for target in node["target"]:
+                if type(target) is str :
+                    targetString += target
+                elif type(target) is list:
+                    for frame_target in target:
+                        targetString += ">> %s" % frame_target
+    
+            message += "<li>Target: <b>%s</b><br/>HTML: %s" % (targetString, escape(node["html"]))
+            if len(node["any"]) > 0:
+                any_message = "<br/><b>Fix at least one of:</b><ul>"
+                for check in node["any"]:
+                    any_message += "<li>" + check["message"] + "</li>"
+                any_message += "</ul>"
+                message += any_message
+    
+            all_message = ""
+            if len(node["all"]) > 0:
+                all_message = "<br/><b>Fix all of:</b><ul>"
+                for check in node["all"]:
+                    all_message += "<li>" + check["message"] + "</li>"
+                all_message += "</ul>"
+                message += all_message
+    
+        message += "</ul>"
+    
+        logFunc(message, html=True)
+        logger.debug(json.dumps(result, indent=4))
+    
+    # End of Accessibility keywords         
    
      
     @capture_screenshot_on_error    
