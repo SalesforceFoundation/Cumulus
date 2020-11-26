@@ -45,7 +45,7 @@ Review Donation And Update Opportunity For Batch Gift
     ...                                  update opp link is enabled. Change date to today and amount less than opp amount, process gift.
     ...                                  Verify opportunity is closedwon, amount and date match with values entered on form but
     ...                                  no new payment created or existing payment records are not updated.
-    [tags]                               unstable      feature:GE                    W-042803
+    [tags]                               feature:GE                    W-042803
     #verify Review Donations link is available and update a payment link is active and update opportunity is disabled
     Go To Page                           Landing                       GE_Gift_Entry
     Click Gift Entry Button              New Batch

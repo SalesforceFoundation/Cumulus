@@ -20,13 +20,13 @@ Setup Test Data
     Set suite variable   &{ACCOUNT}
     ${FUT_DATE} =            Get Current Date         result_format=%Y-%m-%d    increment=2 days
     Set suite variable   ${FUT_DATE}
-    ${CUR_DATE} =            Get Current Date         result_format=%Y-%m-%d    
+    ${CUR_DATE} =            Get Current Date         result_format=%Y-%m-%d
     Set suite variable   ${CUR_DATE}
-    &{OPPORTUNITY} =     API Create Opportunity   ${ACCOUNT}[Id]              Donation  
-    ...                  StageName=Prospecting    
-    ...                  Amount=500    
-    ...                  CloseDate=${FUT_DATE}    
-    ...                  npe01__Do_Not_Automatically_Create_Payment__c=false    
+    &{OPPORTUNITY} =     API Create Opportunity   ${ACCOUNT}[Id]              Donation
+    ...                  StageName=Prospecting
+    ...                  Amount=500
+    ...                  CloseDate=${FUT_DATE}
+    ...                  npe01__Do_Not_Automatically_Create_Payment__c=false
     ...                  Name=${ACCOUNT}[Name] Donation
     Set suite variable   &{OPPORTUNITY}
     ${UI_DATE} =         Get Current Date                   result_format=%b %-d, %Y
@@ -42,9 +42,9 @@ Review Donation And Update Payment For Batch Gift
     ...                                  select the donor as account and the account created. Verify review donations modal and select to update payment.
     ...                                  Change date to today and payment amount to be less than opp amount. Verify that same payment record got updated
     ...                                  with new amount and date but opportunity is still prospecting and amount is not updated.
-    [tags]                               unstable      feature:GE                    W-042803   
-    #verify Review Donations link is available and update a payment                           
-    Go To Page                           Landing                       GE_Gift_Entry         
+    [tags]                               feature:GE                    W-042803
+    #verify Review Donations link is available and update a payment
+    Go To Page                           Landing                       GE_Gift_Entry
     Click Gift Entry Button              New Batch
     Wait Until Modal Is Open
     Select Template                      Default Gift Entry Template
@@ -62,8 +62,8 @@ Review Donation And Update Payment For Batch Gift
     Click Button                         Review Donations
     Wait Until Modal Is Open
     Click Button                         Update this Payment
-    Wait Until Modal Is Closed 
-    Fill Gift Entry Form                 
+    Wait Until Modal Is Closed
+    Fill Gift Entry Form
     ...                                  Donation Amount=499.50
     ...                                  Donation Date=Today
     Click Button                         Save & Enter New Gift
@@ -90,4 +90,3 @@ Review Donation And Update Payment For Batch Gift
     ...                                  npe01__Payment_Amount__c=499.5
     ...                                  npe01__Payment_Date__c=${CUR_DATE}
     ...                                  npe01__Paid__c=True
-    

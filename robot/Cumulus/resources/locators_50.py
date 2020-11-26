@@ -273,6 +273,7 @@ npsp_lex_locators={
         'footer-btn':"//footer[@class='slds-modal__footer']/button[text()='{}']",
         'field-label':'//lightning-primitive-cell-factory//*[text()="{}"]',
         'field_dd_option':'//div[contains(@class,"slds-input-has-icon")][./input[@name="{}"]]/following-sibling::div//span[@title="{}"]',
+        'object_group':'//th[.//*[text()="{}"]]',
         },
     'modal-form':{
         'label':'//div[./*/*[text()="{}"]]',

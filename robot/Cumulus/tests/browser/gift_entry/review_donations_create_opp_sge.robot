@@ -30,7 +30,7 @@ Review Donation And Create Opportunity For SGE
     [Documentation]                      Create an organization account with open opportunity (with payment record) via API. Go to SGE form
     ...                                  select the donor as account and the account created. Verify review donations modal but select to create alternative opportunity.
     ...                                  Enter details and save. Verify that new opportunity and payment are created with right info
-    [tags]                               unstable      feature:GE                    W-039564
+    [tags]                               feature:GE                    W-039564
     #verify Review Donations link is available and create a new opportunity using SGE form
     Go To Page                           Landing                       GE_Gift_Entry
     Click Gift Entry Button              New Single Gift

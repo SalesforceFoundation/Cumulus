@@ -57,7 +57,7 @@ class GiftEntryLandingPage(BaseNPSPPage, BasePage):
             self.selenium.wait_until_page_contains("Clone")
         self.selenium.click_link(action)
         if action=="Edit" or action=="Clone":
-            self.selenium.wait_until_page_contains("Gift Entry Template Information")
+            self.selenium.wait_until_page_contains("Gift Entry Template Information",timeout=60)
         elif action=="Delete":
             self.selenium.wait_until_page_does_not_contain(name)
 
@@ -301,6 +301,7 @@ class GiftEntryFormPage(BaseNPSPPage, BasePage):
         Key is field name and value is value to be entered for field """
         for key,value in kwargs.items():
             locator=npsp_lex_locators["gift_entry"]["id"].format(key)
+            self.selenium.wait_until_page_contains_element(locator)
             type=self.selenium.get_element_attribute(locator,"data-qa-locator")
             field_locator=npsp_lex_locators["gift_entry"]["field_input"].format(key,"input")
             print(f"type is {type}")
@@ -368,11 +369,11 @@ class GiftEntryFormPage(BaseNPSPPage, BasePage):
         if byname == "True":
             for field,value in kwargs.items():
                 locator=npsp_lex_locators["gift_entry"]["datatable_field_by_name"].format(name,field,value)
-            self.selenium.wait_until_page_contains_element(locator,error=f'{field} does not contain {value} for row with {name}')
+            self.selenium.wait_until_page_contains_element(locator,timeout=60,error=f'{field} does not contain {value} for row with {name}')
         else:
             for field,value in kwargs.items():
                 locator=npsp_lex_locators["gift_entry"]["table"].format(name,field,value)
-            self.selenium.wait_until_page_contains_element(locator,error=f'{field} does not contain {value} in {name} table')
+            self.selenium.wait_until_page_contains_element(locator,timeout=60,error=f'{field} does not contain {value} in {name} table')
 
     def perform_action_on_datatable_row(self,name,action):
         """Select the specific gift entry data row based on the name parameter and
@@ -386,6 +387,7 @@ class GiftEntryFormPage(BaseNPSPPage, BasePage):
         menuitem=npsp_lex_locators["gift_entry"]["datatable-menu-item"].format(action)
         self.selenium.wait_until_element_is_visible(menuitem,error= f"'{action}' is not displayed on the page")
         self.selenium.click_element(menuitem)
+        self.builtin.sleep('2s',reason='to provide enough time for action to happen')
 
     def verify_link_status(self, **kwargs):
         """ Verify the link is disabled/enabled, pass the name of the link

@@ -35,7 +35,7 @@ Create Gift For Contact Using New Gift Button
     [Documentation]                      Open a contact record and click on New Gift button from the actions menu of the page.
     ...                                  Verify that Single Gift form is loaded with prepopulated contact info and create a gift.
     ...                                  Verify that opp page is loaded on save. Verify that new opportunity and payment are created with right info
-    [tags]                               unstable      feature:GE                    W-039584
+    [tags]                               feature:GE                    W-039584
     Go To Page                           Details              Contact       object_id=${CONTACT}[Id]
     Current Page Should Be               Details              Contact
     Click Button                         New Gift
@@ -66,7 +66,7 @@ Create Gift For Account Using New Gift Button
     [Documentation]                      Open a Organization Account record and click on New Gift button from the actions menu of the page.
     ...                                  Verify that Single Gift form is loaded with prepopulated Account info and create a gift.
     ...                                  Verify that opp page is loaded on save. Verify that new opportunity and payment are created with right info
-    [tags]                               unstable      feature:GE                    W-039584
+    [tags]                               feature:GE                    W-039584
     Go To Page                           Details              Account       object_id=${ACCOUNT}[Id]
     Current Page Should Be               Details              Account
     Click Button                         New Gift

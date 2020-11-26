@@ -48,13 +48,14 @@ class AdvancedMappingPage(BaseNPSPPage, BasePage):
         self.selenium.wait_until_page_contains("Success", timeout=180)
         name=src_fld.split(' (')
         locator=npsp_lex_locators['adv_mappings']['field-label'].format(name[0])
-        self.selenium.wait_until_page_contains_element(locator,timeout=90,error=f'Timed out waiting to confirm {name[0]} was created')
+        self.selenium.wait_until_page_contains_element(locator,timeout=180,error=f'Timed out waiting to confirm {name[0]} was created')
 
     @capture_screenshot_on_error
     def view_field_mappings_of_the_object(self,obj):
         """Click the dropdwon for obj and select View Field Mappings and verify that field mappings page is open"""
         self.selenium.wait_until_page_contains("Object Groups", timeout=60)
-        self.selenium.wait_until_page_contains(obj, timeout=30, error=f"{obj} did not load in 30 seconds")
+        group=npsp_lex_locators['adv_mappings']['object_group'].format(obj)
+        self.selenium.wait_until_page_contains_element(group, timeout=60, error=f"{obj} did not load in 1 minute")
         locator=npsp_lex_locators['adv_mappings']['dropdown'].format(obj)
         self.selenium.wait_until_element_is_enabled(locator)
         self.selenium.scroll_element_into_view(locator)

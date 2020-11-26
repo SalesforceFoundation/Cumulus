@@ -38,7 +38,7 @@ Review Donation And Create Payment For Batch Gift
     ...                   With donor as contact created, open review donations modal and select add payment. Change date to today and payment amt < opp amt.
     ...                   Verify that opp shows in table and on processing creates a paymment but opp is still prospecting and amt is not updated.
     ...                   Create another payment with total > opp amt and verify opp is closed and opp date is payment date. Verify original payment is not updated.
-    [tags]                               unstable      feature:GE                    W-042803
+    [tags]                               feature:GE                    W-042803
     #verify Review Donations link is available and create a payment
     Go To Page                           Landing                       GE_Gift_Entry
     Click Gift Entry Button              New Batch
