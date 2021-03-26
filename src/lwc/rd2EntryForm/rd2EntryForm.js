@@ -58,6 +58,7 @@ const RECURRING_TYPE_OPEN = 'Open';
 const PAYMENT_METHOD_CREDIT_CARD = 'Credit Card';
 const ELEVATE_SUPPORTED_COUNTRIES = ['US', 'USA', 'United States', 'United States of America'];
 const ELEVATE_SUPPORTED_CURRENCIES = ['USD'];
+const CURRENCY_FIELD_API_NAME = 'CurrencyIsoCode';
 
 /***
 * @description Event name fired when the Elevate credit card widget
@@ -118,6 +119,7 @@ export default class rd2EntryForm extends LightningElement {
     @track isElevateWidgetEnabled = false;
     hasUserDisabledElevateWidget = false;
     isElevateCustomer = false;
+    isElevateEditEnabled = false;
     commitmentId = null;
     paymentMethodToken;
     cardholderName;
@@ -143,7 +145,7 @@ export default class rd2EntryForm extends LightningElement {
     * @description Get settings required to enable or disable fields and populate their values
     */
     connectedCallback() {
-        getRecurringSettings({ parentId: this.parentId })
+        getRecurringSettings({ parentId: this.parentId, recordId: this.recordId })
             .then(response => {
                 this.isAutoNamingEnabled = response.isAutoNamingEnabled;
                 this.isMultiCurrencyEnabled = response.isMultiCurrencyEnabled;
@@ -153,6 +155,15 @@ export default class rd2EntryForm extends LightningElement {
                 this.customFields = response.customFieldSets;
                 this.hasCustomFields = Object.keys(this.customFields).length !== 0;
                 this.isElevateCustomer = response.isElevateCustomer;
+
+                // This field will be replaced by above isElevateCustomer when edit commitment becomes GA
+                this.isElevateEditEnabled = response.isElevateEditEnabled;
+
+                // Even though there is an option to get commitment Id in wired "getRecord",
+                // however, it is safer to get it from the back end in the case
+                // the user does not have permission on the commitment field causing
+                // the record to be handled as non-Elevate record.
+                this.commitmentId = response.commitmentId;
             })
             .catch((error) => {
                 this.handleError(error);
@@ -217,7 +228,7 @@ export default class rd2EntryForm extends LightningElement {
         this.fields.paymentMethod = extractFieldInfo(fieldInfos, FIELD_PAYMENT_METHOD.fieldApiName);
         this.fields.status = extractFieldInfo(fieldInfos, FIELD_STATUS.fieldApiName);
         this.fields.statusReason = extractFieldInfo(fieldInfos, FIELD_STATUS_REASON.fieldApiName);
-        this.fields.currency = { label: currencyFieldLabel, apiName: 'CurrencyIsoCode' };
+        this.fields.currency = { label: currencyFieldLabel, apiName: CURRENCY_FIELD_API_NAME };
     }
 
     /***
@@ -308,12 +319,18 @@ export default class rd2EntryForm extends LightningElement {
     * @param paymentMethod Payment method
     */
     evaluateElevateWidget(paymentMethod) {
-        this.isElevateWidgetEnabled = this.isElevateCustomer === true
-            && !this.isEdit
-            && paymentMethod === PAYMENT_METHOD_CREDIT_CARD
-            && (this.scheduleComponent && this.scheduleComponent.getRecurringType() === RECURRING_TYPE_OPEN)
-            && this.isCurrencySupported()
-            && this.isCountrySupported();
+        if (!this.isEdit) {
+            this.isElevateWidgetEnabled = this.isElevateCustomer === true
+                && paymentMethod === PAYMENT_METHOD_CREDIT_CARD
+                && (this.scheduleComponent && this.scheduleComponent.getRecurringType() === RECURRING_TYPE_OPEN)
+                && this.isCurrencySupported()
+                && this.isCountrySupported();
+
+        } else {
+            this.isElevateWidgetEnabled = this.isElevateCustomer === true
+                && this.isElevateEditEnabled//TODO to remove when edit is GA and above isElevateCustomer is being used for all commitment features
+                && !isEmpty(this.getCommitmentId());
+        }
 
         this.populateCardHolderName();
     }
@@ -356,12 +373,21 @@ export default class rd2EntryForm extends LightningElement {
     isCurrencySupported() {
         let currencyCode;
 
-        if (this.isMultiCurrencyEnabled) {
-            currencyCode = this.template.querySelector('lightning-input-field[data-id="currencyField"]').value;
+        try {
+            if (this.isMultiCurrencyEnabled) {
+                currencyCode = this.template.querySelector('lightning-input-field[data-id="currencyField"]').value;
 
-        } else {
-            currencyCode = CURRENCY;
-        }
+                // Sometimes when Edit is clicked in a sequence, the "currencyField" field is not visible,
+                // but the value does exist. In such case, get the record "CurrencyIsoCode" field on the SObject.
+                // This inconsistency in rendering might be due to resetting values on the form when user clicks [Cancel].
+                if (isNull(currencyCode)) {
+                    currencyCode = this.record.fields[CURRENCY_FIELD_API_NAME].value;
+                }
+
+            } else {
+                currencyCode = CURRENCY;
+            }
+        } catch (error) { }
 
         return ELEVATE_SUPPORTED_CURRENCIES.includes(currencyCode);
     }
@@ -419,7 +445,6 @@ export default class rd2EntryForm extends LightningElement {
 
                 this.paymentMethodToken = await elevateWidget.returnToken().payload;
             }
-
         } catch (error) {
             this.setSaveButtonDisabled(false);
             return;
@@ -471,9 +496,9 @@ export default class rd2EntryForm extends LightningElement {
             // A new Recurring Donation will be a new Elevate recurring commitment
             // when the Elevate widget is displayed on the entry form.
             return this.isElevateWidgetDisplayed();
+        } else {
+            return !isEmpty(this.getCommitmentId());
         }
-
-        return false;
     }
 
     /***

@@ -161,4 +161,29 @@ public inherited sharing class RD2_DataRegulationService {
             }
         }
     }
+    
+    /***
+    * @description Validates Recurring Donation records
+    * @param rds Recurring Donation records
+    * @param oldRds Old version of the Recurring Donation records
+    * @return List<RD2_ValidationService.Notification>
+    */
+    public List<RD2_ValidationService.Notification> validate(List<npe03__Recurring_Donation__c> rds, List<npe03__Recurring_Donation__c> oldRds) {
+
+        List<RD2_ValidationService.Notification> notifications = new List<RD2_ValidationService.Notification>();
+        RD2_ValidationService validationService = new RD2_ValidationService(rds);
+
+        Boolean isNew = oldRds == null || oldRds.isEmpty();
+
+        if (isNew) {
+            notifications = validationService.validate();
+
+        } else {
+            notifications = validationService
+                .withOldRecurringDonations(oldRds)
+                .validateOnChange();
+        }
+
+        return notifications;
+    }
 }

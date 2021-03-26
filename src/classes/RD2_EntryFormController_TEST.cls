@@ -76,7 +76,7 @@ private with sharing class RD2_EntryFormController_TEST {
         Id accountId =  UTIL_UnitTestData_TEST.mockId(Account.SObjectType);
 
         Test.startTest();
-        Map<String, Object> orgSettingsByKey = RD2_EntryFormController.getRecurringSettings(accountId);
+        Map<String, Object> orgSettingsByKey = RD2_EntryFormController.getRecurringSettings(accountId, null);
         Test.stopTest();
 
         System.assertEquals(RD2_NamingService.isAutomaticNamingEnabled, ((Boolean) orgSettingsByKey.get('isAutoNamingEnabled')),
@@ -103,11 +103,30 @@ private with sharing class RD2_EntryFormController_TEST {
         RD2_ElevateIntegrationService_TEST.enableElevateUserPermissions();
 
         Test.startTest();
-        Map<String, Object> orgSettingsByKey = RD2_EntryFormController.getRecurringSettings(accountId);
+        Map<String, Object> orgSettingsByKey = RD2_EntryFormController.getRecurringSettings(accountId, null);
         Test.stopTest();
 
         System.assertEquals(true, ((Boolean) orgSettingsByKey.get('isElevateCustomer')),
             'The org should be Elevate customer');
+    }
+
+    /***
+    * @description Verifies whether the org is the Elevate customer
+    * in order to display the Elevate credit card widget if so.
+    */
+    @isTest
+    private static void shouldNotDisplayElevateWidgetWhenElevateEnabledAndPilotEnabledIsFalse() {
+        Id accountId =  UTIL_UnitTestData_TEST.mockId(Account.SObjectType);
+
+        RD2_ElevateIntegrationService_TEST.enableElevateUserPermissions();
+        UTIL_FeatureEnablement_TEST.setPilotEnabledParameter(false);
+
+        Test.startTest();
+        Map<String, Object> orgSettingsByKey = RD2_EntryFormController.getRecurringSettings(accountId, null);
+        Test.stopTest();
+
+        System.assertEquals(false, ((Boolean) orgSettingsByKey.get('isElevateCustomer')),
+            'The org should not be Elevate customer');
     }
 
     /***

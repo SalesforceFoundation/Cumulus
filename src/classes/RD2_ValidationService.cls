@@ -191,7 +191,7 @@ public with sharing class RD2_ValidationService {
 
     /**
     * @description Validate RD data on insert
-    * @return void
+    * @return List<Notification>
     */
     public List<ErrorRecord> validateOnInsert() {
         List<ErrorRecord> errorRecords = new List<ErrorRecord>();
@@ -215,7 +215,7 @@ public with sharing class RD2_ValidationService {
 
     /**
     * @description Validates Recurring Donation on update DML
-    * @return void
+    * @return List<Notification>
     */
     public List<ErrorRecord> validateOnChange() {
         List<ErrorRecord> errorRecords = new List<ErrorRecord>();
@@ -262,8 +262,10 @@ public with sharing class RD2_ValidationService {
         return UTIL_Describe.isValidPicklistOption(
             'npe03__Recurring_Donation__c',
             String.valueOf(npe03__Recurring_Donation__c.Status__c),
-            RD2_Constants.STATUS_PAUSED);
+            RD2_Constants.STATUS_PAUSED
+        );
     }
+
     /***
     * @description Validates Enhanced Recurring Donations metadata has been deployed
     * @param rd The Recurring Donation to validate
@@ -293,7 +295,8 @@ public with sharing class RD2_ValidationService {
             errorCollection.addError(
                 String.format(
                     System.Label.RD2_InstallmentPeriodMustBeValid,
-                    new String[]{ rd.npe03__Installment_Period__c })
+                    new String[]{ rd.npe03__Installment_Period__c }
+                )
             );
         }
 
@@ -430,7 +433,8 @@ public with sharing class RD2_ValidationService {
             errorCollection.addError(
                 String.format(
                     System.Label.RD2_StatusMustBeMapped + ' ' + System.Label.RD2_StatusMustBeMappedSolution,
-                    new String[]{rd.Status__c})
+                    new String[]{rd.Status__c}
+                )
             );
         }
     }
@@ -502,7 +506,8 @@ public with sharing class RD2_ValidationService {
             errorCollection.addError(
                 String.format(
                     System.Label.RD2_DayOfMonthMustBeValid,
-                    new String[]{ rd.Day_of_Month__c })
+                    new String[]{ rd.Day_of_Month__c }
+                )
             );
         }
     }
@@ -514,6 +519,7 @@ public with sharing class RD2_ValidationService {
      */
     private void validateFixedLength(npe03__Recurring_Donation__c rd, ErrorRecord errorCollection) {
         RD2_RecurringDonation rdRecord = new RD2_RecurringDonation(rd);
+        
         if (rdRecord.isOpenEnded()
             && rd.npe03__Installments__c > 1
         ) {

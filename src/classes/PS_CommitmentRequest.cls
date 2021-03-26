@@ -176,8 +176,7 @@ public inherited sharing class PS_CommitmentRequest {
     * @param token Payment Method Token
     * @return RequestBody
     */
-    public RequestBody getCreateRequestBody(npe03__Recurring_Donation__c rd, String token) {
-
+    private RequestBody getCreateRequestBody(npe03__Recurring_Donation__c rd, String token) {
         String currencyCode = UserInfo.isMultiCurrencyOrganization()
             ? (String) rd.get('CurrencyIsoCode')
             : UserInfo.getDefaultCurrency();
@@ -189,7 +188,7 @@ public inherited sharing class PS_CommitmentRequest {
             .withCampaign(rd.npe03__Recurring_Donation_Campaign__c)
             .withOrigin(PS_Request.OriginType.CRM.name());
     
-        RequestBody reqBody =  new RequestBody()
+        RequestBody reqBody = new RequestBody()
             .withMerchantId(configService.getMerchantIds())
             .withGatewayId(configService.getGatewayIds())
             .withPaymentMethodToken(token)
@@ -286,7 +285,9 @@ public inherited sharing class PS_CommitmentRequest {
         ResponseBody commitment = new ResponseBody();
 
         if (response != null
-            && response.statusCode == UTIL_Http.STATUS_CODE_CREATED
+            && (response.statusCode == UTIL_Http.STATUS_CODE_CREATED 
+                || response.statusCode == UTIL_Http.STATUS_CODE_OK
+            )
             && String.isNotBlank(response.body)
         ) {
             commitment = (ResponseBody) JSON.deserialize(response.body, ResponseBody.class);
@@ -329,7 +330,6 @@ public inherited sharing class PS_CommitmentRequest {
         
         return accounts.isEmpty() ? null : accounts[0];
     }
-
 
 
     /***

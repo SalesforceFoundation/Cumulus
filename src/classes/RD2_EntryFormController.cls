@@ -70,16 +70,17 @@ public with sharing class RD2_EntryFormController {
 
     /**
     * @description  Gather the org, object and environment setting for Recurring Donation Entry/Edit Form
-    * @param parentId The parentId of the new RD
+    * @param parentId The Contact or Account Id for which Recurring Donation will be created
+    * @param recordId Recurring Donation Id
     * @return Map<String, Object>
     */
     @AuraEnabled(cacheable=true)
-    public static Map<String, Object> getRecurringSettings(Id parentId) {
+    public static Map<String, Object> getRecurringSettings(Id parentId, Id recordId) {
         String parentSObjectType = (parentId == null)
             ? null
             : parentId.getSobjectType().getDescribe().getName();
-
-        return new Map<String, Object> {
+            
+        Map<String, Object> data = new Map<String, Object>{
             'isAutoNamingEnabled' => RD2_NamingService.isAutomaticNamingEnabled,
             'isMultiCurrencyEnabled' => UserInfo.isMultiCurrencyOrganization(),
             'parentSObjectType' => parentSObjectType,
@@ -88,6 +89,37 @@ public with sharing class RD2_EntryFormController {
             'customFieldSets' => getCustomFieldSectionFields(),
             'isElevateCustomer' => RD2_ElevateIntegrationService.isIntegrationEnabled()
         };
+
+        Boolean isElevateCustomer = RD2_ElevateIntegrationService.isElevateCreateEnabled();
+        data.put('isElevateCustomer', isElevateCustomer);
+
+        // Use above "isElevateCustomer" instead the "isElevateEditEnabled" when Edit Commitment becomes GA.
+        Boolean isElevateEditEnabled = RD2_ElevateIntegrationService.isElevateEditEnabled();
+        data.put('isElevateEditEnabled', isElevateEditEnabled);
+
+        if (isElevateEditEnabled && recordId != null) {
+            data.put('commitmentId', getCommitmentId(recordId));
+        }
+
+        return data;
+    }
+
+    /**
+    * @description Get the Elevate recurring commitment Id
+    * @return String
+    */
+    public static String getCommitmentId(Id recordId) {
+        String commitmentId;
+
+        try {
+            npe03__Recurring_Donation__c rd = getRecurringDonation(recordId);
+            commitmentId = rd.CommitmentId__c;
+
+        } catch (Exception ex) {            
+            UTIL_AuraEnabledCommon.throwAuraHandledException(ex.getMessage());
+        }
+
+        return commitmentId;
     }
 
     /**
@@ -168,7 +200,8 @@ public with sharing class RD2_EntryFormController {
             'npe03__Organization__c',
             'npe03__Organization__r.RecordTypeId',
             'npe03__Contact__r.Account.RecordTypeId',
-            'npe03__Installments__c'
+            'npe03__Installments__c',
+            'CommitmentId__c'
         };
 
         String soql = new UTIL_Query()
@@ -253,6 +286,7 @@ public with sharing class RD2_EntryFormController {
         }
     }
 
+
     /***
     * @description Constructs a Recurring Donation record based on the entry form fields, and
     * submits the create or edit commitment request to the Elevate Payments API.
@@ -331,6 +365,18 @@ public with sharing class RD2_EntryFormController {
             }
             set;
         }
+        /**
+        * @description Used to adjust and validate Recurring Donation data
+        */
+        private RD2_DataRegulationService dataService {
+            get {
+                if (dataService == null) {
+                    dataService = new RD2_DataRegulationService();
+                }
+                return dataService;
+            }
+            set;
+        }   
 
         /**
         * Used to adjust and validate Recurring Donation data 
@@ -364,6 +410,7 @@ public with sharing class RD2_EntryFormController {
 
             return response;
         }
+
 
         /**
         * @description Constructs Recurring Donation record from received fields specified in the JSON string,
@@ -425,8 +472,8 @@ public with sharing class RD2_EntryFormController {
         * @return Boolean
         */
         private Boolean shouldSendToElevate(npe03__Recurring_Donation__c rd, String paymentMethodToken) {
-            // Data should be sent to Elevate to either create or edit commitment depending if commitment Id is provided
-            // when a new Recurring Donation is being created
+            // Data should be sent to Elevate to either create or edit commitment 
+            // (determined in the send request based if the commitment Id is provided or not)
             if (rd.Id == null) {
                 return true;
             }
@@ -504,9 +551,11 @@ public with sharing class RD2_EntryFormController {
         * @return void
         */
         public void logError(Id recordId, String errorMessage) {
+            SObjectType rdSObjectType = npe03__Recurring_Donation__c.SObjectType;
+
             ERR_LogService.Logger logger = new ERR_LogService.Logger(
                 ERR_Handler_API.Context.Elevate,
-                npe03__Recurring_Donation__c.SObjectType
+                rdSObjectType
             );
 
             String errorType = (recordId.getSobjectType() == Schema.npe03__Recurring_Donation__c.getSObjectType())

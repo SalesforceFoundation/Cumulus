@@ -10,8 +10,10 @@
                         <div class='credit-card-header slds-p-vertical_small slds-p-horizontal_x-small'>
                             <lightning-layout vertical-align='center'>
                                 <lightning-layout-item size='6'>
-                                    <h1 class='slds-text-body_regular' data-qa-locator='heading'>{labels.elevateWidgetLabel}</h1>
+                                    <h1 class='slds-text-body_regular' data-qa-locator='heading'>
+                                        {labels.elevateWidgetLabel}</h1>
                                 </lightning-layout-item>
+
                                 <lightning-layout-item size='6'>
                                     <template if:false={isEditPayment}>
                                         <template if:false={isDisabled}>
@@ -20,6 +22,17 @@
                                                 onclick={handleUserDisabledWidget}
                                                 class='slds-button slds-button_base slds-float_right hide-card-button'
                                                 data-qa-locator='button Do Not Use Elevate'>
+                                            </lightning-button>
+                                        </template>
+                                    </template>
+
+                                    <template if:true={isDisabled}>
+                                        <template if:true={isEdit}>
+                                            <lightning-button variant='base' label={labels.updatePaymentButtonLabel}
+                                                title={labels.updatePaymentButtonLabel}
+                                                onclick={handleUserEnabledWidget}
+                                                class='slds-button slds-button_base slds-float_right hide-card-button'
+                                                data-qa-locator='button Update Payment'>
                                             </lightning-button>
                                         </template>
                                     </template>
@@ -32,23 +45,52 @@
                     <lightning-layout-item size="12" class='slds-p-horizontal_small slds-p-top_small'>
 
                         <template if:true={isDisabled}>
-                            <p class='fade-in'>
-                                <span class='slds-content-message'>
-                                    <lightning-formatted-rich-text value={labels.elevateDisabledMessage}
-                                                                   data-qa-locator="richtext Elevate Disabled Message">
-                                    </lightning-formatted-rich-text>
-                                </span>
-                                <lightning-button variant='base' label={labels.elevateEnableButtonLabel}
-                                                  title={labels.elevateEnableButtonLabel} onclick={handleUserEnabledWidget}
-                                                  class='slds-m-left_xx-small' data-qa-locator='button Use Elevate Now'>
-                                </lightning-button>
-                            </p>
+                            <template if:false={isEdit}>
+                                <p class='fade-in'>
+                                    <span class='slds-content-message'>
+                                        <lightning-formatted-rich-text value={labels.elevateDisabledMessage}
+                                            data-qa-locator="richtext Elevate Disabled Message">
+                                        </lightning-formatted-rich-text>
+                                    </span>
+                                    <lightning-button variant='base' label={labels.elevateEnableButtonLabel}
+                                        title={labels.elevateEnableButtonLabel} onclick={handleUserEnabledWidget}
+                                        class='slds-m-left_xx-small' data-qa-locator='button Use Elevate Now'>
+                                    </lightning-button>
+                                </p>
+                            </template>
+
+                            <template if:true={isEdit}>
+                                <lightning-layout multiple-rows="false"
+                                    class="slds-p-top_small slds-p-bottom_large slds-p-horizontal_x-small">
+                                    <lightning-layout-item size="4">
+                                        <label for="cardLast4" class="slds-form-element__label">
+                                            {fields.cardLast4.label}
+                                        </label>
+                                        <div class="slds-form-element__control">
+                                            <lightning-formatted-text id="cardLast4" data-id="cardLast4"
+                                                value={cardLast4}>
+                                            </lightning-formatted-text>
+                                        </div>
+                                    </lightning-layout-item>
+
+                                    <lightning-layout-item size="4">
+                                        <label for="cardExpirationDate" class="slds-form-element__label">
+                                            {labels.cardExpirationDate}
+                                        </label>
+                                        <div class="slds-form-element__control">
+                                            <lightning-formatted-text id="cardExpirationDate"
+                                                data-id="cardExpirationDate" value={cardExpirationDate}>
+                                            </lightning-formatted-text>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </template>
                         </template>
 
                         <template if:false={isDisabled}>
                             <div if:true={alert.show} class='slds-p-bottom_medium'>
                                 <c-util-alert-banner if:true={alert.show} theme={alert.theme} variant={alert.variant}
-                                                     icon={alert.icon} message={alert.message} data-qa-locator='alert Message'>
+                                    icon={alert.icon} message={alert.message} data-qa-locator='alert Message'>
                                 </c-util-alert-banner>
                             </div>
                             <template if:true={isEditPayment}>
@@ -65,7 +107,7 @@
                             </template>
                             <div class="slds-col slds-size_1-of-2">
                                 <lightning-input name="cardholderName" label={labels.cardholderNameLabel}
-                                                 data-qa-locator="input Elevate Cardholder Name" data-id="cardholderName">
+                                    data-qa-locator="input Elevate Cardholder Name" data-id="cardholderName">
                                 </lightning-input>
                             </div>
 
@@ -75,7 +117,7 @@
                                     </lightning-spinner>
                                 </template>
                                 <iframe class='payment-services-iframe' title={labels.elevateWidgetLabel}
-                                        src={tokenizeCardPageUrl} data-id={labels.elevateWidgetLabel}>
+                                    src={tokenizeCardPageUrl} data-id={labels.elevateWidgetLabel}>
                                 </iframe>
                             </div>
                         </template>

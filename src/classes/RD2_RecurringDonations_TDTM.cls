@@ -268,7 +268,7 @@ public class RD2_RecurringDonations_TDTM extends TDTM_Runnable {
             errorRd.getRecord().addError(errorRd.getFirstError());
         }
     }
-
+    
     /**
     * @description When new recurring donations are inserted that have a value in the CommitmentId field
     * launch up a queueable process to look for matching existing Opportunities with that same CommmitmentId.

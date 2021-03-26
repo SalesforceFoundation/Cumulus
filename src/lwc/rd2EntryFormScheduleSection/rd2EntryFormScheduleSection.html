@@ -1,6 +1,6 @@
 <template>
 
-    <lightning-record-edit-form record-id={recordId} object-api-name="npe03__Recurring_Donation__c">
+    <lightning-record-edit-form record-id={recordId} object-api-name="npe03__Recurring_Donation__c" onload={dispatchTypeChange}>
 
         <div class="slds-section slds-is-open">
 
@@ -12,7 +12,7 @@
                                            flexibility="shrink" if:true={fields.recurringType}>
                         <lightning-input-field field-name={fields.recurringType.apiName}
                                                onchange={onHandleRecurringTypeChange}
-                                               data-id='{fields.recurringType.apiName}'>
+                                               data-id="recurringType">
                                                required>
                         </lightning-input-field>
                     </lightning-layout-item>

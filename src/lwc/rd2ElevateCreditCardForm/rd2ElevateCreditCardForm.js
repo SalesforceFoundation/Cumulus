@@ -1,16 +1,29 @@
-import { api, track, LightningElement } from 'lwc';
-import { constructErrorMessage } from 'c/utilCommon';
+import { api, track, wire, LightningElement } from 'lwc';
+import { constructErrorMessage, extractFieldInfo, isEmpty} from 'c/utilCommon';
+import { getObjectInfo } from 'lightning/uiObjectInfoApi';
+import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 
 import tokenHandler from 'c/psElevateTokenHandler';
 import getOrgDomainInfo from '@salesforce/apex/UTIL_AuraEnabledCommon.getOrgDomainInfo';
+
+import RECURRING_DONATION_OBJECT from '@salesforce/schema/npe03__Recurring_Donation__c';
+import FIELD_CARD_LAST4 from '@salesforce/schema/npe03__Recurring_Donation__c.CardLast4__c';
+import FIELD_CARD_EXPIRY_MONTH from '@salesforce/schema/npe03__Recurring_Donation__c.CardExpirationMonth__c';
+import FIELD_CARD_EXPIRY_YEAR from '@salesforce/schema/npe03__Recurring_Donation__c.CardExpirationYear__c';
 
 import elevateWidgetLabel from '@salesforce/label/c.commonPaymentServices';
 import spinnerAltText from '@salesforce/label/c.geAssistiveSpinner';
 import elevateDisableButtonLabel from '@salesforce/label/c.RD2_ElevateDisableButtonLabel';
 import elevateDisabledMessage from '@salesforce/label/c.RD2_ElevateDisabledMessage';
 import nextPaymentDonationDateMessage from '@salesforce/label/c.RD2_NextPaymentDonationDateInfo';
-import cardholderNameLabel from '@salesforce/label/c.commonCardholderName';
 import elevateEnableButtonLabel from '@salesforce/label/c.RD2_ElevateEnableButtonLabel';
+import updatePaymentButtonLabel from '@salesforce/label/c.RD2_ElevateUpdatePaymentButtonLabel';
+import cardholderNameLabel from '@salesforce/label/c.commonCardholderName';
+import cardExpirationDate from '@salesforce/label/c.commonMMYY';
+import commonNotAvailable from '@salesforce/label/c.commonNotAvailable';
+import cancelLabel from '@salesforce/label/c.commonCancel';
+
+
 
 /***
 * @description Event name fired when the Elevate credit card widget is displayed or hidden
@@ -18,6 +31,11 @@ import elevateEnableButtonLabel from '@salesforce/label/c.RD2_ElevateEnableButto
 */
 const WIDGET_EVENT_NAME = 'rd2ElevateCreditCardForm';
 
+const FIELDS = [
+    FIELD_CARD_LAST4,
+    FIELD_CARD_EXPIRY_MONTH,
+    FIELD_CARD_EXPIRY_YEAR
+];
 const TOKENIZE_CREDIT_CARD_EVENT_ACTION = 'createToken';
 
 /***
@@ -31,13 +49,22 @@ export default class rd2ElevateCreditCardForm extends LightningElement {
         elevateDisableButtonLabel,
         elevateDisabledMessage,
         elevateEnableButtonLabel,
+        updatePaymentButtonLabel,
+        cardholderNameLabel,
+        cardExpirationDate,
+        commonNotAvailable,
+        cancelLabel,
         cardholderNameLabel,
         nextPaymentDonationDateMessage
     };
 
+    @api recordId;
+    @api isEdit;
     @track isLoading = true;
     @track isDisabled = false;
     @track alert = {};
+    @track fields = {};
+    @track record;
 
     _paymentMethod = undefined;
     _nextDonationDate = undefined;
@@ -88,6 +115,11 @@ export default class rd2ElevateCreditCardForm extends LightningElement {
             });
 
         tokenHandler.setVisualforceOriginURLs(domainInfo);
+
+        this.isDisabled = this.isEdit;
+        if (this.isDisabled === true) {
+            this.handleUserDisabledWidget();
+        }
     }
 
     /***
@@ -96,6 +128,65 @@ export default class rd2ElevateCreditCardForm extends LightningElement {
     renderedCallback() {
         let component = this;
         tokenHandler.registerPostMessageListener(component);
+    }
+
+    /***
+    * @description Retrieves Recurring Donation Object and fields labels/help text
+    */
+    @wire(getObjectInfo, { objectApiName: RECURRING_DONATION_OBJECT.objectApiName })
+    wiredRecurringDonationObjectInfo(response) {
+        if (response.data) {
+            this.setFields(response.data.fields);
+        }
+
+        if (response.error) {
+            this.handleError(response.error);
+        }
+    }
+
+    /***
+     * @description Tracks specified fields so when the Recurring Donation record is updated,
+     * this method is called to force refresh of the data and the component.
+     */
+    @wire(getRecord, {
+        recordId: '$recordId',
+        fields: FIELDS
+    })
+    wiredRecurringDonation(response) {
+        if (response.data) {
+            this.record = response.data;
+        }
+
+        if (response.error) {
+            this.handleError(response.error);
+        }
+    }
+
+    /**
+     * @description Construct field describe info from the Recurring Donation SObject info
+     */
+    setFields(rdObjectInfo) {
+        this.fields.cardLast4 = extractFieldInfo(rdObjectInfo, FIELD_CARD_LAST4.fieldApiName);
+    }
+
+    get cardLast4() {
+        let value = getFieldValue(this.record, FIELD_CARD_LAST4);
+
+        return !isEmpty(value) ? value : this.labels.commonNotAvailable;
+    }
+
+    get cardExpirationDate() {
+        let expiryMonth = getFieldValue(this.record, FIELD_CARD_EXPIRY_MONTH);
+
+        return !isEmpty(expiryMonth) 
+            ? (expiryMonth + "/" + getFieldValue(this.record, FIELD_CARD_EXPIRY_YEAR))
+            : this.labels.commonNotAvailable;
+    }
+
+    get disableInputLabel() {
+        return this.isEdit
+            ? this.labels.cancelLabel
+            : this.labels.elevateDisableButtonLabel;
     }
 
     /***

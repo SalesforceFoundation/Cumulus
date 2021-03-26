@@ -106,8 +106,7 @@
                                     </lightning-layout-item>
 
                                     <template if:true={isMultiCurrencyEnabled}>
-                                        <lightning-layout-item padding="horizontal-small" size="6" small-device-size="6"
-                                            if:true={fields.amount}>
+                                        <lightning-layout-item padding="horizontal-small" size="6" small-device-size="6">
                                             <div class="slds-p-horizontal_xx-small slds-m-bottom_x-small">
                                                 <label for="currencyField"
                                                     class="slds-form-element__label slds-no-flex">{fields.currency.label}</label>
@@ -121,9 +120,14 @@
 
                                 </lightning-layout>
 
-                                <c-rd2-entry-form-schedule-section record-id={recordId} data-id="scheduleComponent"
-                                    onerrorevent={handleChildComponentError} ontypechange={handleRecurringTypeChange} if:true={isSettingReady}>
-                                </c-rd2-entry-form-schedule-section>
+                                <template if:true={isSettingReady}>
+                                    <c-rd2-entry-form-schedule-section 
+                                        record-id={recordId} 
+                                        data-id="scheduleComponent"
+                                        onerrorevent={handleChildComponentError} 
+                                        ontypechange={handleRecurringTypeChange}>
+                                    </c-rd2-entry-form-schedule-section>
+                                </template>
 
                                 <lightning-layout horizontal-align="spread" multiple-rows="true">
                                     <lightning-layout-item padding="horizontal-small" size="12" small-device-size="6"
@@ -136,7 +140,10 @@
 
                                     <lightning-layout-item size="12" class="slds-p-bottom_small"
                                         if:true={isElevateWidgetEnabled}>
-                                        <c-rd2-elevate-credit-card-form data-id='elevateWidget'
+                                        <c-rd2-elevate-credit-card-form 
+                                            record-id={recordId} 
+                                            is-edit={isEdit} 
+                                            data-id='elevateWidget'
                                             data-qa-locator='widget Elevate'
                                             payment-method={paymentMethod}>
                                         </c-rd2-elevate-credit-card-form>

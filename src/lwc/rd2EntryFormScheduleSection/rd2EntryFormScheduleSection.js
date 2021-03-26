@@ -1,6 +1,6 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import { getObjectInfo, getPicklistValues } from 'lightning/uiObjectInfoApi';
-import { isNull } from 'c/utilCommon';
+import { isNull, isUndefined } from 'c/utilCommon';
 
 import getRecurringSettings from '@salesforce/apex/RD2_entryFormController.getRecurringSettings';
 import getRecurringData from '@salesforce/apex/RD2_entryFormController.getRecurringData';
@@ -47,7 +47,6 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
     });
 
     isNew = false;
-    isRecordReady = false;
     hasError = false;
 
     @api recordId;
@@ -86,20 +85,21 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
         this.init();
     }
 
-     /***
-    * @description Get settings required to enable or disable fields and populate their values
-    */
+    /***
+   * @description Get settings required to enable or disable fields and populate their values
+   */
     init() {
         if (isNull(this.recordId)) {
             this.isNew = true;
             this.updateScheduleFieldVisibility(PERIOD_MONTHLY, PERIOD_MONTHLY);
             this.updatePlannedInstallmentsVisibility();
+
         } else {
             /**
              * @description Retrieve the RD Schedule related fields from apex to configure the custom picklist values
              * and field visibility rules accordingly.
              */
-            getRecurringData({recordId: this.recordId})
+            getRecurringData({ recordId: this.recordId })
                 .then(response => {
                     this.customPeriod = response.Period;
                     this.inputFieldInstallmentFrequency = response.Frequency;
@@ -113,14 +113,14 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
                 })
                 .catch((error) => {
                     this.hasError = true;
-                    this.dispatchEvent(new CustomEvent('errorevent', { detail: { value: error }}));
+                    this.dispatchEvent(new CustomEvent('errorevent', { detail: { value: error } }));
                 });
         }
 
         /**
          * @description Retrieve special RD settings and permissions from Apex that cannot be retrieved effecively here.
          */
-        getRecurringSettings({ parentId: null })
+        getRecurringSettings({ parentId: null, recordId: null })
             .then(response => {
                 this.disablePeriodPicklistField = this.shouldDisableField(response.InstallmentPeriodPermissions);
                 this.hidePeriodPicklistField = this.shouldHideField(response.InstallmentPeriodPermissions);
@@ -132,7 +132,7 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
                 // handleError(error);
             })
             .finally(() => {
-                this.isLoading = !this.isEverythingLoaded();
+                this.checkLoading();
             });
     }
 
@@ -148,21 +148,41 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
                 this.rdObjectInfo.fields,
                 this.rdObjectInfo.apiName
             );
-            this.isLoading = !this.isEverythingLoaded();
+
+            this.checkLoading();
 
         } else if (response.error) {
             this.hasError = true;
-            this.dispatchEvent(new CustomEvent('errorevent', { detail: { value: response.error }}));
+            this.dispatchEvent(new CustomEvent('errorevent', { detail: { value: response.error } }));
         }
     }
 
     /**
      * @description Set isLoading to false only after all wired actions have fully completed
-     * @returns True (All Done) or False (Still Loading)
      */
-    isEverythingLoaded() {
-        return (this.installmentPeriodPicklistValues && this.dayOfMonthPicklistValues && this.isRecordReady
-            && this.rdObjectInfo && !this.hasError);
+    checkLoading() {
+        this.isLoading = !(
+            this.installmentPeriodPicklistValues
+            && this.dayOfMonthPicklistValues
+            && !isUndefined(this.fields.recurringType)
+            && this.rdObjectInfo
+            && !this.hasError
+        );
+    }
+
+    /**
+     * @description Broadcasts the schedule form field values that 
+     * might impact the parent component display
+     */
+    dispatchTypeChange() {
+        this.dispatchEvent(new CustomEvent(
+            'typechange',
+            {
+                detail: {
+                    recurringType: this.getRecurringType()
+                }
+            }
+        ));
     }
 
     /**
@@ -188,7 +208,6 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
         this.fields.dayOfMonth = this.extractFieldInfo(fieldInfos, FIELD_DAY_OF_MONTH.fieldApiName);
         this.fields.startDate = this.extractFieldInfo(fieldInfos, FIELD_START_DATE.fieldApiName);
         this.fields.plannedInstallments = this.extractFieldInfo(fieldInfos, FIELD_PLANNED_INSTALLMENTS.fieldApiName);
-        this.isRecordReady = true;
     }
 
     /**
@@ -257,11 +276,14 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
             if (data.defaultValue && data.defaultValue.value) {
                 this.defaultDayOfMonthValue = data.defaultValue.value;
             }
-        } else if (error) {
+            this.checkLoading();
+        }
+
+        if (error) {
             // Day of Month field likely not visible
             this.dayOfMonthPicklistValues = {};
+            this.checkLoading();
         }
-        this.isLoading = !this.isEverythingLoaded();
     }
 
     /***
@@ -275,11 +297,14 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
                 this.defaultInstallmentPeriodValue = data.defaultValue.value;
                 this.setDefaultInstallmentPeriod();
             }
-        } else if (error) {
+            this.checkLoading();
+        }
+
+        if (error) {
             // Installment Period field likely not visible
             this.installmentPeriodPicklistValues = {};
+            this.checkLoading();
         }
-        this.isLoading = !this.isEverythingLoaded();
     }
 
     /***
@@ -308,10 +333,7 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
         this.updatePlannedInstallmentsVisibility(recurringType);
 
         // Notify the main entry form about the Recurring Type value change
-        this.dispatchEvent(new CustomEvent(
-            'typechange', 
-            { detail: { 'recurringType': recurringType }}
-        ));
+        this.dispatchTypeChange();
     }
 
     /**
@@ -410,27 +432,27 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
                 switch (pl.value) {
                     case PERIOD_DAILY:
                         advancedPeriodPicklistValues.push(
-                            {label: this.customLabels.periodPluralDays, value: pl.value}
+                            { label: this.customLabels.periodPluralDays, value: pl.value }
                         );
                         break;
                     case PERIOD_WEEKLY:
                         advancedPeriodPicklistValues.push(
-                            {label: this.customLabels.periodPluralWeeks, value: pl.value}
+                            { label: this.customLabels.periodPluralWeeks, value: pl.value }
                         );
                         break;
                     case PERIOD_MONTHLY:
                         advancedPeriodPicklistValues.push(
-                            {label: this.customLabels.periodPluralMonths, value: pl.value}
+                            { label: this.customLabels.periodPluralMonths, value: pl.value }
                         );
                         break;
                     case PERIOD_YEARLY:
                         advancedPeriodPicklistValues.push(
-                            {label: this.customLabels.periodPluralYears, value: pl.value}
+                            { label: this.customLabels.periodPluralYears, value: pl.value }
                         );
                         break;
                     case PERIOD_FIRST_AND_FIFTEENTH:
                         advancedPeriodPicklistValues.push(
-                            {label: pl.label, value: pl.value}
+                            { label: pl.label, value: pl.value }
                         );
                         break;
                 }
@@ -488,8 +510,8 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
      */
     @api
     getRecurringType() {
-        const recurringType = this.template.querySelector(`lightning-input-field[data-id='${FIELD_RECURRING_TYPE.fieldApiName}']`)
-        
+        const recurringType = this.template.querySelector('lightning-input-field[data-id="recurringType"]');
+
         return recurringType ? recurringType.value : null;
     }
 
@@ -535,7 +557,7 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
     */
     @api
     forceRefresh() {
-       this.init();
+        this.init();
     }
 
     /**
@@ -551,5 +573,5 @@ export default class rd2EntryFormScheduleSection extends LightningElement {
             });
         this.isLoading = true;
     }
-        
+
 }

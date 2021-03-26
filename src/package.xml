@@ -1774,6 +1774,7 @@
         <members>RD2_ElevatePermissionRequired</members>
         <members>RD2_ElevateRDClosedStatusCannotBeChanged</members>
         <members>RD2_ElevateRecordCreateFailed</members>
+        <members>RD2_ElevateUpdatePaymentButtonLabel</members>
         <members>RD2_EnablementDisabledHeader</members>
         <members>RD2_EnablementDisabledMessage</members>
         <members>RD2_EnablementDryRunBatchTitle</members>
@@ -2269,6 +2270,7 @@
         <members>commonNext</members>
         <members>commonNo</members>
         <members>commonNoItems</members>
+        <members>commonNotAvailable</members>
         <members>commonOkay</members>
         <members>commonOpen</members>
         <members>commonPaymentServices</members>
