@@ -12,6 +12,7 @@ Collect BDI Failures
     ...           Status__c=Failed
     Return From Keyword   @{failures}
 
+
 Ensure Custom Metadata Was Deployed
     ${Default_Object_Mapping_Set} =   Salesforce Query  Data_Import_Object_Mapping__mdt
     ...           select=Id
