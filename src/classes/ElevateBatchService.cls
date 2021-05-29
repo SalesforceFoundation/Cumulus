@@ -29,7 +29,7 @@
  */
 public virtual with sharing class ElevateBatchService {
 
-    public virtual ElevateAuthorizedGift addToElevateBatch(ElevateTokenizedGift tokenizedGift, String elevateBatchId) {
+    public virtual Gift addToElevateBatch(Gift tokenizedGift, String elevateBatchId) {
         return new ElevateBatch(elevateBatchId).add(tokenizedGift);
     }
 
@@ -37,7 +37,7 @@ public virtual with sharing class ElevateBatchService {
         return new ElevateBatch().create();
     }
 
-    public ElevateAuthorizedGift sendAddRequest(ElevateTokenizedGift tokenizedGift, String elevateBatchId) {
+    public Gift sendAddRequest(Gift tokenizedGift, String elevateBatchId) {
         UTIL_Http.Response response = new UTIL_Http.RequestService().sendRequest(
                 addRequest(tokenizedGift, elevateBatchId)
         );
@@ -45,7 +45,7 @@ public virtual with sharing class ElevateBatchService {
                 (response.body, ElevateAuthorizedGiftResponse.class);
         checkForAuthorizedGiftErrorsIn(authorizedGiftResponse);
 
-        return new ElevateAuthorizedGift(tokenizedGift, authorizedGiftResponse);
+        return new Gift(tokenizedGift, authorizedGiftResponse);
     }
 
     public ElevateBatch getElevateBatch() {
@@ -57,7 +57,7 @@ public virtual with sharing class ElevateBatchService {
         return new ElevateBatch(ElevateBatchResponse);
     }
 
-    private HttpRequest addRequest(ElevateTokenizedGift tokenizedGift, String elevateBatchId) {
+    private HttpRequest addRequest(Gift tokenizedGift, String elevateBatchId) {
         return new PS_Request.Builder()
                 .withMethod(UTIL_Http.Method.POST)
                 .withElevateBatchId(elevateBatchId)

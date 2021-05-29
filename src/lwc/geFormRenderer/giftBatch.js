@@ -1,21 +1,20 @@
-import stageGift from '@salesforce/apex/GE_GiftEntryController.stageGift';
-import apexCreateElevateBatch from '@salesforce/apex/GE_GiftEntryController.createElevateBatch';
+import stageGift from '@salesforce/apex/NPSP_Batch.stageGift';
 
-class ElevateBatch {
+class GiftBatch {
 
     constructor(elevateBatchId) {
         this.elevateBatchId = elevateBatchId;
         this._hasAddRun = false;
     }
 
-    async add(tokenizedGift) {
+    async add(dataImport) {
         if (!this.elevateBatchId) {
             this.elevateBatchId = await this.create();
         }
 
         try {
             const authorizedGift = await stageGift(
-                {tokenizedGift: tokenizedGift, elevateBatchId: this.elevateBatchId}
+                { tokenizedGift: tokenizedGift, elevateBatchId: this.elevateBatchId }
             );
             return authorizedGift;
         } catch (ex) {
@@ -33,7 +32,6 @@ class ElevateBatch {
         const elevateBatch = await apexCreateElevateBatch();
         return elevateBatch.elevateBatchId;
     }
-
 }
 
-export default ElevateBatch;
+export default GiftBatch;

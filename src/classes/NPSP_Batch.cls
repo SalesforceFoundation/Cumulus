@@ -56,7 +56,7 @@ public inherited sharing class NPSP_Batch {
         }
         set;
     }
-
+    
     @TestVisible
     private NPSP_Batch(Gifts authorizedGifts) {
         this.authorizedGifts = authorizedGifts;

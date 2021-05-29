@@ -54,7 +54,7 @@ public with sharing class ElevateBatch {
         return elevateBatchService.getElevateBatch();
     }
 
-    public ElevateAuthorizedGift add(ElevateTokenizedGift tokenizedGift) {
+    public Gift add(Gift tokenizedGift) {
         return elevateBatchService.sendAddRequest(tokenizedGift, elevateBatchId());
     }
 

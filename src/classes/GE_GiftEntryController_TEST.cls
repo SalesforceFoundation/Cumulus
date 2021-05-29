@@ -81,11 +81,11 @@ private with sharing class GE_GiftEntryController_TEST {
     @isTest static void addCreditCardElevateBatchShouldReturnSuccessResponse() {
         GE_GiftEntryController.elevateBatchService = new ElevateBatchServiceValidRequest();
         AuraHandledException auraException;
-        ElevateAuthorizedGift authorizedGift;
+        Gift authorizedGift;
 
         Test.startTest();
             try {
-                authorizedGift = GE_GiftEntryController.addToElevateBatch(new ElevateTokenizedGift(),
+                authorizedGift = GE_GiftEntryController.addToElevateBatch(new Gift(),
                         'test-valid-id');
             } catch (AuraHandledException ex) {
                 auraException = ex;
@@ -108,7 +108,7 @@ private with sharing class GE_GiftEntryController_TEST {
 
         Test.startTest();
             try {
-                GE_GiftEntryController.addToElevateBatch(new ElevateTokenizedGift(), 'test-valid-group-id');
+                GE_GiftEntryController.addToElevateBatch(new Gift(), 'test-valid-group-id');
             } catch (AuraHandledException ex) {
                 auraException = ex;
             }

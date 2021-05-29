@@ -296,6 +296,10 @@ export default class geTemplateBuilderFormFields extends LightningElement {
                         Field_Mappings: this.getObjectMappingFieldMappings(objMappingDevName)
                     };
 
+                    if (this.shouldMappingBeExcluded(objectMapping.Field_Mappings)) {
+                        continue;
+                    }
+
                     objectMappings.push(objectMapping)
                 }
             }
