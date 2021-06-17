@@ -40,6 +40,7 @@ public without sharing class RD2_DatabaseService {
 
     private ERR_Handler.Errors errorResult = new ERR_Handler.Errors();
     private Set<Id> failedRDIds = new Set<Id>();
+    private Map<Id,String> failedRDIdsMap = new Map<Id,String>();
 
     /***
     * @description Creates specified records
@@ -135,13 +136,31 @@ public without sharing class RD2_DatabaseService {
                     : ((Database.DeleteResult)dmlResults[i]).isSuccess();
 
                 if (!isSuccess) {
+
+                    List<Database.Error> lErr = dmlResults[i] instanceof Database.SaveResult
+                                                    ? ((Database.SaveResult)dmlResults[i]).getErrors()
+                                                    : ((Database.DeleteResult)dmlResults[i]).getErrors();
+                    String sErr;
+                    // Operation failed, so get all errors                
+                    for (Database.Error err : lErr) {                                  
+                        sErr = String.isBlank(sErr) 
+                                ? err.getMessage() 
+                                : sErr + ', ' + err.getMessage();           
+                    }
+
                     failedRDIds.add((Id) records[i].get('npe03__Recurring_Donation__c'));
+                    if (records[i].get('npe03__Recurring_Donation__c')!=null) {
+                        failedRDIdsMap.put((Id) records[i].get('npe03__Recurring_Donation__c'), sErr);
+                    }
                 }
             }
 
         } else if (recordSObjectType == rdSObjectType) {
-            for (Error__c error : dmlErrors.errorRecords) {
+            for (Error__c error : dmlErrors.errorRecords) {                
                 failedRDIds.add(error.Related_Record_ID__c);
+                if (error.Related_Record_ID__c!=null) {
+                    failedRDIdsMap.put(error.Related_Record_ID__c, error.Full_Message__c);
+                }                
             }
         }
     }
@@ -164,6 +183,19 @@ public without sharing class RD2_DatabaseService {
         failedRDIds.remove(null);
 
         return failedRDIds.size();
+    }
+
+    /***
+    * @description Returns Ids of failed Recurring Donations
+    * @return Set<Id>
+    */
+    public Set<Id> getRecordsFailedId() {
+        failedRDIds.remove(null);
+        return failedRDIds;
+    }
+
+    public Map<Id,String> getRecordsFailedMap() {
+        return failedRDIdsMap;
     }
 
 }

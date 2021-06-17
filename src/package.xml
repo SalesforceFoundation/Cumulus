@@ -682,6 +682,9 @@
         <members>UTIL_Where</members>
         <members>UTIL_Where_TEST</members>
         <members>UTIL_iSoqlListViewConsumer</members>
+        <members>UTIL_pkBanding</members>
+        <members>pkBandingService</members>
+        <members>pkBanding_CTRL</members>
         <name>ApexClass</name>
     </types>
     <types>
@@ -783,6 +786,7 @@
         <members>STG_PanelUpdatePrimaryContact</members>
         <members>STG_PanelUserRollup</members>
         <members>STG_SettingsManager</members>
+        <members>pkBanding</members>
         <name>ApexPage</name>
     </types>
     <types>

@@ -304,6 +304,22 @@ public inherited sharing class RD2_OpportunityEvaluationService {
     }
 
     /**
+     * @description Returns set of Ids with failed RDs
+     * @return Set<Id>
+     */
+    public Set<Id> getRecordsFailedId() {
+        return dbService.getRecordsFailedId();
+    }
+
+    /**
+     * @description Returns Map of Ids and error messages for failed RDs
+     * @return Map<Id,String>
+     */
+    public Map<Id,String> getRecordsFailedMap() {
+        return dbService.getRecordsFailedMap();
+    }
+
+    /**
      * @description Returns true if any of the key fields used to create or manage installment
      * Opportunities has been changed.
      * @param rd Changed Recurring Donation
