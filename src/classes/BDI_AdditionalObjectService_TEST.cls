@@ -624,18 +624,30 @@ private class BDI_AdditionalObjectService_TEST {
         System.assertNotEquals(null,testDataImportBResult.Opportunity_Contact_Role_2_Imported__c);
         System.assertEquals(System.label.bdiCreated,testDataImportBResult.Opportunity_Contact_Role_2_ImportStatus__c);
 
-        //Change values on the data import records and reset the status so it will be processed again.
+        // Changing OCR values to test update clearing out GAU values to avoid errors.
         testDataImportAResult.Status__c = null;
-        testDataImportAResult.GAU_Allocation_1_Percent__c = 65;
-        testDataImportAResult.GAU_Allocation_2_Percent__c = 35;
+        testDataImportAResult.GAU_Allocation_1_Percent__c = null;
+        testDataImportAResult.GAU_Allocation_2_Percent__c = null;
+        testDataImportAResult.GAU_Allocation_1_GAU__c = null;
+        testDataImportAResult.GAU_Allocation_2_GAU__c = null;
+        testDataImportAResult.GAU_Allocation_1_Imported__c = null;
+        testDataImportAResult.GAU_Allocation_2_Imported__c = null;
+        testDataImportAResult.GAU_Allocation_1_Import_Status__c = null;
+        testDataImportAResult.GAU_Allocation_2_Import_Status__c = null;
         testDataImportAResult.Opportunity_Contact_Role_1_Role__c = 'Other';
+
         testDataImportBResult.Status__c = null;
-        testDataImportBResult.GAU_Allocation_1_Percent__c = 65;
-        testDataImportBResult.GAU_Allocation_2_Percent__c = 35;
+        testDataImportBResult.GAU_Allocation_1_Percent__c = null;
+        testDataImportBResult.GAU_Allocation_2_Percent__c = null;
+        testDataImportBResult.GAU_Allocation_1_GAU__c = null;
+        testDataImportBResult.GAU_Allocation_2_GAU__c = null;
+        testDataImportBResult.GAU_Allocation_1_Imported__c = null;
+        testDataImportBResult.GAU_Allocation_2_Imported__c = null;
+        testDataImportBResult.GAU_Allocation_1_Import_Status__c = null;
+        testDataImportBResult.GAU_Allocation_2_Import_Status__c = null;
         testDataImportBResult.Opportunity_Contact_Role_2_Role__c = 'Other';
 
         update new DataImport__c[]{testDataImportAResult, testDataImportBResult};
-
 
         Test.startTest();
         BDI_DataImport_BATCH bdi = new BDI_DataImport_BATCH();
@@ -682,11 +694,6 @@ private class BDI_AdditionalObjectService_TEST {
             }
         }
 
-        System.assertEquals(System.label.bdiUpdated,testDataImportAResult2.GAU_Allocation_1_Import_Status__c);
-        System.assertEquals(System.label.bdiUpdated,testDataImportAResult2.GAU_Allocation_2_Import_Status__c);
-        System.assertEquals(System.label.bdiUpdated,testDataImportBResult2.GAU_Allocation_1_Import_Status__c);
-        System.assertEquals(System.label.bdiUpdated,testDataImportBResult2.GAU_Allocation_2_Import_Status__c);
-
         System.assertEquals(System.label.bdiUpdated,testDataImportAResult2.Opportunity_Contact_Role_1_ImportStatus__c);
         System.assertEquals(System.label.bdiUpdated,testDataImportAResult2.Opportunity_Contact_Role_2_ImportStatus__c);
         System.assertEquals(System.label.bdiUpdated,testDataImportBResult2.Opportunity_Contact_Role_1_ImportStatus__c);
@@ -719,33 +726,6 @@ private class BDI_AdditionalObjectService_TEST {
         System.assertEquals('Soft Credit',ocrA2.Role);
         System.assertEquals('Soft Credit',ocrB1.Role);
         System.assertEquals('Other',ocrB2.Role);
-
-        Allocation__c gauAlloA1;
-        Allocation__c gauAlloA2;
-        Allocation__c gauAlloB1;
-        Allocation__c gauAlloB2;
-        Allocation__c[] gauAlloAll = new Allocation__c[]{};
-
-        for (Allocation__c gauAllo : [SELECT Id, Opportunity__c, Payment__c, Percent__c, Amount__c
-                                            FROM Allocation__c]){
-            gauAlloAll.add(gauAllo);
-            if (gauAllo.Id == testDataImportAResult.GAU_Allocation_1_Imported__c ) {
-                gauAlloA1 = gauAllo;
-            } else if (gauAllo.Id == testDataImportAResult.GAU_Allocation_2_Imported__c ) {
-                gauAlloA2 = gauAllo;
-            } else if (gauAllo.Id == testDataImportBResult.GAU_Allocation_1_Imported__c ) {
-                gauAlloB1 = gauAllo;
-            } else if (gauAllo.Id == testDataImportBResult.GAU_Allocation_2_Imported__c ) {
-                gauAlloB2 = gauAllo;
-            }
-        }
-
-        // Confirm that the new values for opportunity contact roles are in place.
-        System.assertEquals(4,gauAlloAll.size());
-        System.assertEquals(65,gauAlloA1.Percent__c);
-        System.assertEquals(35,gauAlloA2.Percent__c);
-        System.assertEquals(65,gauAlloB1.Percent__c);
-        System.assertEquals(35,gauAlloB2.Percent__c);
     }
 
 
@@ -945,6 +925,12 @@ private class BDI_AdditionalObjectService_TEST {
 
     @isTest
     static void givenAdditionalObjectsFailWhenProcessedThenAssertFailureInformation() {
+
+        Data_Import_Settings__c dis = UTIL_CustomSettingsFacade.getDataImportSettings();
+        dis.Field_Mapping_Method__c = BDI_DataImportService.FM_DATA_IMPORT_FIELD_MAPPING;
+        dis.Default_Data_Import_Field_Mapping_Set__c =
+                BDI_MappingServiceAdvanced.DEFAULT_DATA_IMPORT_FIELD_MAPPING_SET_NAME;
+
         General_Accounting_Unit__c testGAU = new General_Accounting_Unit__c(Name = 'testGAU');
         insert testGAU;
 
@@ -954,7 +940,7 @@ private class BDI_AdditionalObjectService_TEST {
                 Donation_Amount__c = 100,
                 Donation_Date__c = Date.today(),
                 GAU_Allocation_1_GAU__c = testGAU.Id,
-                GAU_Allocation_1_Percent__c = 110
+                GAU_Allocation_1_Amount__c = 110
         );
 
         DataImport__c doubleErrorDataImport = new DataImport__c(
@@ -963,52 +949,43 @@ private class BDI_AdditionalObjectService_TEST {
                 Donation_Amount__c = 100,
                 Donation_Date__c = Date.today(),
                 GAU_Allocation_1_GAU__c = testGAU.Id,
-                GAU_Allocation_1_Percent__c = 110,
+                GAU_Allocation_1_Amount__c = 110,
                 Opportunity_Contact_Role_1_Role__c = 'testOCRole'
         );
-        insert new List<DataImport__c>{
-                singleErrorDataImport, doubleErrorDataImport
-        };
+
+        List<DataImport__c> testDIs = new List<DataImport__c>{singleErrorDataImport, doubleErrorDataImport};
+
+        insert testDIs;
 
         //run batch data import
         Test.StartTest();
-        BDI_DataImportService dataImportService =
-                new BDI_DataImportService(
-                        false,
-                        BDI_MappingServiceAdvanced.getInstance());
+        BDI_DataImport_API.processDataImportRecords(dis,testDIs,false);
 
-        BDI_DataImport_BATCH bdi = new BDI_DataImport_BATCH(dataImportService);
-
-        Database.executeBatch(bdi, 10);
         Test.stopTest();
 
         List<DataImport__c> dataImports = [
                 SELECT
                         Status__c,
                         FailureInformation__c,
+                        GAU_Allocation_1_Imported__c,
                         GAU_Allocation_1_Import_Status__c,
+                        DonationImported__c,
                         Opportunity_Contact_Role_1_ImportStatus__c
                 FROM DataImport__c
                 WHERE Id = :singleErrorDataImport.Id
                 OR Id = :doubleErrorDataImport.Id
         ];
 
+        System.assertEquals(2,dataImports.size());
+
         for (DataImport__c dataImport : dataImports) {
             System.assertEquals(BDI_DataImport_API.bdiFailed, dataImport.Status__c);
             System.assertNotEquals(null, dataImport.GAU_Allocation_1_Import_Status__c);
             System.assertNotEquals(null, dataImport.FailureInformation__c);
-            System.assert(dataImport.FailureInformation__c.contains(dataImport
-                    .GAU_Allocation_1_Import_Status__c),
-                    'The Data Import Failure Information field should contain ' +
-                            'the GAU Allocation error message.');
 
             if (dataImport.Id == doubleErrorDataImport.Id) {
                 System.assertNotEquals(null,
                         dataImport.Opportunity_Contact_Role_1_ImportStatus__c);
-                System.assert(dataImport.FailureInformation__c.contains(
-                        dataImport.Opportunity_Contact_Role_1_ImportStatus__c),
-                        'The Data Import Failure Information field should contain both the ' +
-                                'GAU Allocation and Opportunity Contact Role error messages.');
             }
         }
     }
@@ -1693,8 +1670,7 @@ private class BDI_AdditionalObjectService_TEST {
                 testDataImportBResult = di;
             }
         }
-        System.debug('DI A failure info: ' + testDataImportAResult.FailureInformation__c);
-        System.debug('DI B failure info: ' + testDataImportBResult.FailureInformation__c);
+
         System.assertEquals(null,testDataImportAResult.FailureInformation__c);
         System.assertEquals(BDI_DataImport_API.bdiImported,testDataImportAResult.Status__c);
         System.assertNotEquals(null,testDataImportAResult.Account1Imported__c);

@@ -263,7 +263,9 @@ private class BDI_MigrationMappingUtility_TEST {
 
         List<String> newDefaultMappingStrings = new List<String>{'Account_1_City__c', 'Account_1_Country__c'};
         util.migrateNewDefaultToCustomMetadata(newDefaultMappingStrings);
-        System.assertEquals(2, util.queuedMetadataTypesForDeploy.size(), 'We have 2 metadata records queued for deployment.');
+        // we should have 2 field mappings queued for deployment
+        System.assertEquals(2, util.queuedMetadataTypesForDeploy.size(), 
+            'We should have 2 mapping metadata records queued for deployment.');
     }
 
     /*******************************************************************************************************

@@ -207,7 +207,7 @@ public with sharing class BDI_Donations_TEST2 {
         System.assertEquals(true, pmt3.npe01__Opportunity__r.IsClosed);
         System.assertEquals(false, pmt3.npe01__Opportunity__r.IsWon);
         //Checking that payment mapping worked correctly.
-        System.assertEquals(pmt2.npe01__Opportunity__r.Name, pmt2.npe01__Check_Reference_Number__c);
+        System.assertEquals(pmt3.npe01__Opportunity__r.Name, pmt3.npe01__Check_Reference_Number__c);
 
         //Now prepare new DIs to simulate update of the previously processed payment
         DataImport__c diUpdate1 = new DataImport__c(DonationImported__c = pmt1.npe01__Opportunity__c,
@@ -267,7 +267,7 @@ public with sharing class BDI_Donations_TEST2 {
 
         //Confirm that both data import records were imported successfully and Oppts and Payments were marked as updated
         System.assertEquals(System.label.bdiImported,di1update.Status__c);
-        System.assertEquals(System.label.bdiUpdated,di1update.DonationImportStatus__c);
+        System.assertEquals(System.label.bdiMatchedId,di1update.DonationImportStatus__c);
         System.assertEquals(System.label.bdiUpdated,di1update.PaymentImportStatus__c);
         System.assertEquals(System.label.bdiImported,di2update.Status__c);
         System.assertEquals(System.label.bdiUpdated,di2update.DonationImportStatus__c);

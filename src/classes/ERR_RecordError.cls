@@ -43,8 +43,8 @@ public class ERR_RecordError {
 
     private String context;
 
-    private Map<ID, Error__c> insRecordErrors = new Map<Id, Error__c>();
-    private Map<ID, Error__c> updRecordErrors = new Map<Id, Error__c>();
+    public Map<ID, Error__c> insRecordErrors = new Map<Id, Error__c>();
+    public Map<ID, Error__c> updRecordErrors = new Map<Id, Error__c>();
 
     /*******************************************************************************************************
     * @description Constructor for the ERR_RecordError class.  It should include a context that represents

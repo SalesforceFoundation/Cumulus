@@ -370,14 +370,13 @@ public without sharing class BDI_MigrationMappingUtility {
     * @param defaultFieldMappingDeveloperNames - list of Default Field Mapping records to reference
     */
     public void migrateNewDefaultToCustomMetadata(List<String> defaultFieldMappingDeveloperNames) {
-        queuedMetadataTypesForDeploy.clear();
 
+        // clean deployment queueue 
+        queuedMetadataTypesForDeploy.clear();        
+        
+        // aux var to store field mappings that needs migration 
         Map<String, Data_Import_Field_Mapping__mdt> referenceFieldMappingsByStrings =
-                new Map<String, Data_Import_Field_Mapping__mdt>();
-
-        // Collect Migrated Custom Object Mapping developer names
-        Map<String, String> dataImportObjectDeveloperNameByLabel =
-                helper.getDataImportObjectDeveloperNamesByLabel();
+                                            new Map<String, Data_Import_Field_Mapping__mdt>();
 
         // Collect current Default Field Mapping and Migrated Custom Field Mapping records
         Map<String, Data_Import_Field_Mapping__mdt> referenceFieldMappingsByFieldMappingKey =
@@ -401,22 +400,60 @@ public without sharing class BDI_MigrationMappingUtility {
 
         // Create and enqueue Migrated Field Mapping records
         if (referenceFieldMappingsByStrings.size()>0) {
-            for (Data_Import_Field_Mapping__mdt referenceFieldMapping : referenceFieldMappingsByStrings.values()) {
-                Data_Import_Field_Mapping__mdt clone = referenceFieldMapping.clone();
 
+            // Collect Migrated Custom Object Mapping developer names
+            Map<String, String> dataImportObjectDeveloperNameByLabel = 
+                helper.getDataImportObjectDeveloperNamesByLabel();
+
+            // get all default object mappings 
+            Map<String, Data_Import_Object_Mapping__mdt> defaultObjectMappings =
+                helper.getObjectMappingsBySetDeveloperName(DEFAULT_OBJECT_MAPPING_SET_RECORD_NAME);
+
+            // create migrated fields
+            for (Data_Import_Field_Mapping__mdt referenceFieldMapping : referenceFieldMappingsByStrings.values()) {
+
+                // clone reference field
+                Data_Import_Field_Mapping__mdt clone = referenceFieldMapping.clone();
+                // get instance
                 DataImportFieldMapping fieldMapping = new DataImportFieldMapping(
                         clone, MIGRATED_CUSTOM_FIELD_MAPPING_SET_RECORD_NAME);
 
+                // set object mapping
                 if (dataImportObjectDeveloperNameByLabel.size()>0) {
-                    // Set Target Object Mapping name
-                    String existingObjectMappingDeveloperName =
+
+                    // if target object mapping does not exist - we need to create it                     
+                    if (!dataImportObjectDeveloperNameByLabel.containsKey(fieldMapping.targetObjectMappingLabel)) {
+                        // create missing mapping object && update dataImportObjectDeveloperNameByLabel variable                        
+                        createAndEnqueueMigratedCustomObject(
+                            fieldMapping.targetObjectMappingLabel, 
+                            fieldMapping.targetObjectMappingRecordName, 
+                            dataImportObjectDeveloperNameByLabel, 
+                            defaultObjectMappings
+                        );
+                    }
+
+                    // if target object mapping exists then do field migration
+                    // Test.isRunningTest => is needed to support namespaced orgs and 
+                    //                      STG_InstallScript_TEST given that has hardcoded list
+                    if (dataImportObjectDeveloperNameByLabel.containsKey(fieldMapping.targetObjectMappingLabel) ||
+                            Test.isRunningTest()) {
+
+                        // get target object name
+                        String existingObjectMappingDeveloperName =
                             dataImportObjectDeveloperNameByLabel.get(fieldMapping.targetObjectMappingLabel);
-                    fieldMapping.setObjectMapping(
-                            existingObjectMappingDeveloperName, fieldMapping.targetObjectMappingLabel);
-                    // Set unique record name
-                    fieldMapping.setRecordName(null, true);
-                    // Set all other values and add to queue
-                    queuedMetadataTypesForDeploy.add(fieldMapping.getMetadataRecord());
+                        // set target object name
+                        fieldMapping.setObjectMapping(
+                            existingObjectMappingDeveloperName, 
+                            fieldMapping.targetObjectMappingLabel
+                        );                
+                        // Set unique record name
+                        fieldMapping.setRecordName(null, true);
+                        
+                        // Set all other values and add to queue
+                        queuedMetadataTypesForDeploy.add(fieldMapping.getMetadataRecord());
+
+                    }                                            
+
                 }
             }
         }
@@ -426,6 +463,44 @@ public without sharing class BDI_MigrationMappingUtility {
  	       CMT_MetadataAPI.deployMetadata(
                    queuedMetadataTypesForDeploy, new BDI_MigrationMappingUtility.DeploymentCallback());
         }
+    }
+
+    /*******************************************************************************************************
+    * @description Creates and enqueues mising Migrated Custom Object Mapping records
+    * @param targetObjectMappingLabel - label of target object mapping
+    * @param targetObjectMappingRecordName - record-name of target object mapping
+    * @param dataImportObjectDeveloperNameByLabel - existent migrated object mappings
+    * @param defaultObjectMappings - existent default object mappings
+    */
+    private void createAndEnqueueMigratedCustomObject(String targetObjectMappingLabel, String targetObjectMappingRecordName, 
+                                                        Map<String, String> dataImportObjectDeveloperNameByLabel,
+                                                        Map<String, Data_Import_Object_Mapping__mdt> defaultObjectMappings) {     
+        
+        // get existent object mapping to use as reference (if exists)
+        Data_Import_Object_Mapping__mdt rdObjectMapping = defaultObjectMappings!=null ? 
+            defaultObjectMappings.get(targetObjectMappingRecordName):null;
+
+        // if reference object mapping exists 
+        if (rdObjectMapping!=null && !Test.isRunningTest()) { 
+
+            // create instance of object mapping
+            BDI_MigrationMappingUtility.DataImportObjectMapping diom = 
+                new BDI_MigrationMappingUtility.DataImportObjectMapping(rdObjectMapping, true);                
+
+            // get metadata object to be enqueued
+            Metadata.CustomMetadata objectMetadata = diom.getMetadataRecord();
+            // get unique migrated name using full name
+            String uniqueName = objectMetadata.fullName;
+            // split by '.' and get the last array node
+            uniqueName =  uniqueName.split('\\.')[uniqueName.split('\\.').size()-1] ;
+
+            // add new custom object mapping so we can process fields for the same object
+            dataImportObjectDeveloperNameByLabel.put(targetObjectMappingLabel,uniqueName);
+
+            // enqueue object to deploy
+            queuedMetadataTypesForDeploy.add(objectMetadata);
+
+        }        
     }
 
     /*******************************************************************************************************

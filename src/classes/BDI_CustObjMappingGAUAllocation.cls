@@ -40,10 +40,9 @@ public with sharing class BDI_CustObjMappingGAUAllocation extends BDI_ObjectMapp
 
     public override BDI_ObjectWrapper[] populateObjects(BDI_ObjectWrapper[] objWraps) {
 
-        Allocations_Settings__c settings = UTIL_CustomSettingsFacade.getAllocationsSettings();
-
         String PAYMENT_FIELDNAME = SObjectType.Allocation__c.fields.Payment__c.Name;
         String OPPORTUNITY_FIELDNAME = SObjectType.Allocation__c.fields.Opportunity__c.Name;
+        String RECURRING_DONATION_FIELDNAME = SObjectType.Allocation__c.fields.Recurring_Donation__c.Name;
 
         String sourceObjName = SObjectType.DataImport__c.getName();
 
@@ -55,8 +54,8 @@ public with sharing class BDI_CustObjMappingGAUAllocation extends BDI_ObjectMapp
                 objWrap.sObj.put('Id', objWrap.existingSObjectId);
             }
 
-            Object paymentIdValue;
             Object opportunityIdValue;
+            Object recurringDonationIdValue;
 
             for (BDI_FieldMapping fieldMapping : objWrap.fieldMappings) {
                 String sourceFieldName = fieldMapping.Source_Field_API_Name;
@@ -73,9 +72,12 @@ public with sharing class BDI_CustObjMappingGAUAllocation extends BDI_ObjectMapp
                     if (objWrap.sObj.Id == null || targetFieldDescribe.isUpdateable()) {
                         // If the target field mapping is one of the key parent objects, then extract the values for later logic
                         if (fieldMapping.Target_Field_API_Name == PAYMENT_FIELDNAME) {
-                            paymentIdValue = value;
+                            // Skip payment lookup since we will not directly link a GAU Allocation to Payment
+                            continue;
                         } else if (fieldMapping.Target_Field_API_Name == OPPORTUNITY_FIELDNAME) {
                             opportunityIdValue = value;
+                        } else if (fieldMapping.Target_Field_API_Name == RECURRING_DONATION_FIELDNAME) {
+                            recurringDonationIdValue = value;
                         } else {
                             castAndCopyField(objWrap, sourceFieldName, sourceFieldDescribe, targetFieldName, targetFieldDescribe);
                         }
@@ -84,8 +86,9 @@ public with sharing class BDI_CustObjMappingGAUAllocation extends BDI_ObjectMapp
             }
 
             // If the payment is specified and payment allocations are enabled, always use that first.
-            if ( paymentIdValue != null && settings.Payment_Allocations_Enabled__c) {
-                objWrap.sObj.put(PAYMENT_FIELDNAME,paymentIdValue);
+            if ( recurringDonationIdValue != null
+                    && objWrap.dataImport.RecurringDonationImportStatus__c == Label.bdiCreated ) {
+                objWrap.sObj.put(RECURRING_DONATION_FIELDNAME,recurringDonationIdValue);
             } else if ( opportunityIdValue != null ) {
                 objWrap.sObj.put(OPPORTUNITY_FIELDNAME,opportunityIdValue);
             }

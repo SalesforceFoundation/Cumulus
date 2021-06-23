@@ -52,7 +52,7 @@ public with sharing class BDI_ObjectWrapper {
     * @param dataImport Instance of DataImport__c 
     * @param objMapping  CMT record for object from config
     * @param fieldMappings CMT records for field mappings from config
-    * @param predessessorObjMapping CMT record of predessessor
+    * @param predecessorObjMapping CMT record of predecessor
     * @param dynamicSource if dynamic source objects are being used, this object contains the sourceSObj.
     */
     public BDI_ObjectWrapper(DataImport__c dataImport, 

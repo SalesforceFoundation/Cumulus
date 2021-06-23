@@ -3891,6 +3891,30 @@ To check your GAU Allocation settings, go to Donations | GAU Allocations.</value
         <value>The Donation information matched against one or more Opportunities, but the setting required no matches, so the NPSP Data Importer did not import it. The Donation Possible Matches field contains the Salesforce Ids of the matched Opportunities.</value>
     </labels>
     <labels>
+        <fullName>bdiErrorExistingDonationAllocations</fullName>
+        <categories>Data Importer</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>bdiErrorExistingDonationAllocations</shortDescription>
+        <value>There are existing allocations on the donation which may conflict with the GAU allocations entered.</value>
+    </labels>
+    <labels>
+        <fullName>bdiErrorExistingPaymentAllocations</fullName>
+        <categories>Data Importer</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>bdiErrorExistingPaymentAllocations</shortDescription>
+        <value>There are existing allocations on the payment which may conflict with the GAU Allocations entered.</value>
+    </labels>
+    <labels>
+        <fullName>bdiErrorGAUAllocationOver100</fullName>
+        <categories>Data Importer</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>bdiErrorGAUAllocationOver100</shortDescription>
+        <value>The provided GAU Allocations exceed 100 percent.</value>
+    </labels>
+    <labels>
         <fullName>bdiErrorInvalidCampaignName</fullName>
         <categories>Data Importer</categories>
         <language>en_US</language>

@@ -470,7 +470,22 @@ global without sharing class STG_InstallScript implements InstallHandler {
                     'Payment_Origin_Type',
                     'Payment_Paid',
                     'Payment_Type',
-                    'Donation_Elevate_Recurring_ID'
+                    'Donation_Elevate_Recurring_ID',                    
+                    'Recurring_Donation_Amount',
+                    'Recurring_Donation_Date_Established',
+                    'Recurring_Donation_Day_of_Month',
+                    'Recurring_Donation_Effective_Date',
+                    'Recurring_Donation_Elevate_Recurring_Id',
+                    'Recurring_Donation_End_Date',
+                    'Recurring_Donation_Installment_Frequency',
+                    'Recurring_Donation_Installment_Period',
+                    'Recurring_Donation_Name',
+                    'Recurring_Donation_Payment_Method',
+                    'Recurring_Donation_Planned_Installments',
+                    'Recurring_Donation_Recurring_Type',
+                    'Recurring_Donation_Status',
+                    'Recurring_Donation_Status_Reason',
+                    'Recurring_Donation_Campaign'
             };
 
             util.migrateNewDefaultToCustomMetadata(newDefaultMappingStrings);

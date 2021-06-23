@@ -113,6 +113,8 @@
         <members>BDI_DynamicSourceGroup</members>
         <members>BDI_FieldMapping</members>
         <members>BDI_FieldMappingSet</members>
+        <members>BDI_GAUAllocationsUtil</members>
+        <members>BDI_GAUAllocationsUtil_TEST</members>
         <members>BDI_IMatchDonations</members>
         <members>BDI_IPostProcess</members>
         <members>BDI_ManageAdvancedMappingCtrl</members>
@@ -133,6 +135,8 @@
         <members>BDI_PerfLogger</members>
         <members>BDI_PerfLogger_TEST</members>
         <members>BDI_PostProcess_TEST</members>
+        <members>BDI_RecurringDonations</members>
+        <members>BDI_RecurringDonations_TEST</members>
         <members>BDI_SettingsUI_CTRL</members>
         <members>BDI_SettingsUI_TEST</members>
         <members>BDI_TargetFields</members>
@@ -1200,6 +1204,22 @@
         <members>DataImport__c.Payment_Possible_Matches__c</members>
         <members>DataImport__c.Payment_Status__c</members>
         <members>DataImport__c.Payment_Type__c</members>
+        <members>DataImport__c.RecurringDonationImportStatus__c</members>
+        <members>DataImport__c.RecurringDonationImported__c</members>
+        <members>DataImport__c.Recurring_Donation_Amount__c</members>
+        <members>DataImport__c.Recurring_Donation_Date_Established__c</members>
+        <members>DataImport__c.Recurring_Donation_Day_of_Month__c</members>
+        <members>DataImport__c.Recurring_Donation_Effective_Date__c</members>
+        <members>DataImport__c.Recurring_Donation_Elevate_Recurring_ID__c</members>
+        <members>DataImport__c.Recurring_Donation_End_Date__c</members>
+        <members>DataImport__c.Recurring_Donation_Installment_Frequency__c</members>
+        <members>DataImport__c.Recurring_Donation_Installment_Period__c</members>
+        <members>DataImport__c.Recurring_Donation_Name__c</members>
+        <members>DataImport__c.Recurring_Donation_Payment_Method__c</members>
+        <members>DataImport__c.Recurring_Donation_Planned_Installments__c</members>
+        <members>DataImport__c.Recurring_Donation_Recurring_Type__c</members>
+        <members>DataImport__c.Recurring_Donation_Status_Reason__c</members>
+        <members>DataImport__c.Recurring_Donation_Status__c</members>
         <members>DataImport__c.Status__c</members>
         <members>Data_Import_Settings__c.Account_Custom_Unique_ID__c</members>
         <members>Data_Import_Settings__c.Account_Matching_Rule__c</members>
@@ -2059,6 +2079,9 @@
         <members>bdiErrorDonationMultiMatch</members>
         <members>bdiErrorDonationNoMatch</members>
         <members>bdiErrorDonationRequireNoMatch</members>
+        <members>bdiErrorExistingDonationAllocations</members>
+        <members>bdiErrorExistingPaymentAllocations</members>
+        <members>bdiErrorGAUAllocationOver100</members>
         <members>bdiErrorInvalidCampaignName</members>
         <members>bdiErrorInvalidDonor</members>
         <members>bdiErrorInvalidIMatchDonations</members>
@@ -3445,11 +3468,13 @@
         <members>Data_Import_Field_Mapping.GAU_Allocation_1_Opportunity</members>
         <members>Data_Import_Field_Mapping.GAU_Allocation_1_Payment</members>
         <members>Data_Import_Field_Mapping.GAU_Allocation_1_Percent</members>
+        <members>Data_Import_Field_Mapping.GAU_Allocation_1_Recurring_Donation</members>
         <members>Data_Import_Field_Mapping.GAU_Allocation_2_Amount</members>
         <members>Data_Import_Field_Mapping.GAU_Allocation_2_GAU</members>
         <members>Data_Import_Field_Mapping.GAU_Allocation_2_Opportunity</members>
         <members>Data_Import_Field_Mapping.GAU_Allocation_2_Payment</members>
         <members>Data_Import_Field_Mapping.GAU_Allocation_2_Percent</members>
+        <members>Data_Import_Field_Mapping.GAU_Allocation_2_Recurring_Donation</members>
         <members>Data_Import_Field_Mapping.Home_City</members>
         <members>Data_Import_Field_Mapping.Home_Country</members>
         <members>Data_Import_Field_Mapping.Home_State_Province</members>
@@ -3484,6 +3509,21 @@
         <members>Data_Import_Field_Mapping.Payment_Origin_Type</members>
         <members>Data_Import_Field_Mapping.Payment_Paid</members>
         <members>Data_Import_Field_Mapping.Payment_Type</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Amount</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Campaign</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Date_Established</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Day_of_Month</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Effective_Date</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Elevate_Recurring_Id</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_End_Date</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Installment_Frequency</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Installment_Period</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Name</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Payment_Method</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Planned_Installments</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Recurring_Type</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Status</members>
+        <members>Data_Import_Field_Mapping.Recurring_Donation_Status_Reason</members>
         <members>Data_Import_Field_Mapping_Set.Default_Field_Mapping_Set</members>
         <members>Data_Import_Object_Mapping.Account1</members>
         <members>Data_Import_Object_Mapping.Account2</members>
@@ -3497,6 +3537,7 @@
         <members>Data_Import_Object_Mapping.Opportunity_Contact_Role_1</members>
         <members>Data_Import_Object_Mapping.Opportunity_Contact_Role_2</members>
         <members>Data_Import_Object_Mapping.Payment</members>
+        <members>Data_Import_Object_Mapping.Recurring_Donation</members>
         <members>Data_Import_Object_Mapping_Set.Default_Object_Mapping_Set</members>
         <members>GetStartedChecklistItem.Add_User</members>
         <members>GetStartedChecklistItem.Capture_Donor_Intent</members>

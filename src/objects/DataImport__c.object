@@ -1639,6 +1639,196 @@
         <unique>false</unique>
     </fields>
     <fields>
+        <fullName>RecurringDonationImportStatus__c</fullName>
+        <description>The status from attempting to insert the Recurring Donation.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The status from attempting to insert the Recurring Donation.</inlineHelpText>
+        <label>Recurring Donation Import Status</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>RecurringDonationImported__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <description>A lookup to the Recurring Donation if it was successfully created.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>A lookup to the Recurring Donation if it was successfully created.</inlineHelpText>
+        <label>Recurring Donation Imported</label>
+        <referenceTo>npe03__Recurring_Donation__c</referenceTo>
+        <relationshipLabel>NPSP Data Imports</relationshipLabel>
+        <relationshipName>NPSP_Data_Imports</relationshipName>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Amount__c</fullName>
+        <description>The amount for each installment Opportunity.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The amount for each installment Opportunity.</inlineHelpText>
+        <label>Recurring Donation Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Date_Established__c</fullName>
+        <description>The initial inception date for this Recurring Donation. The default is the current date.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The initial inception date for this Recurring Donation. The default is the current date.</inlineHelpText>
+        <label>Recurring Donation Date Established</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Day_of_Month__c</fullName>
+        <description>Sets the specific day of the month for future installment Opportunities when the Installment Period is Monthly. If you select 29 or 30, the installment date will be the last day of the month for months that don&apos;t have that many days.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Sets the specific day of the month for future installment Opportunities when the Installment Period is Monthly. If you select 29 or 30, the installment date will be the last day of the month for months that don&apos;t have that many days.</inlineHelpText>
+        <label>Recurring Donation Day of Month</label>
+        <length>10</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Effective_Date__c</fullName>
+        <description>The date that new or updated schedule information (Amount, Day of Month, etc.) for this Recurring Donation takes effect. The default is the current date.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The date that new or updated schedule information (Amount, Day of Month, etc.) for this Recurring Donation takes effect. The default is the current date.</inlineHelpText>
+        <label>Recurring Donation Effective Date</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Elevate_Recurring_ID__c</fullName>
+        <description>The external, unique ID of the related Recurring Donation in Elevate.</description>
+        <externalId>true</externalId>
+        <inlineHelpText>The external, unique ID of the related Recurring Donation in Elevate.</inlineHelpText>
+        <label>Recurring Donation Elevate Recurring ID</label>
+        <length>100</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_End_Date__c</fullName>
+        <description>After this date, NPSP no longer creates installments for this Recurring Donation and updates Status to Closed.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>After this date, NPSP no longer creates installments for this Recurring Donation and updates Status to Closed.</inlineHelpText>
+        <label>Recurring Donation End Date</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Installment_Frequency__c</fullName>
+        <description>The Installment Frequency along with Installment Period defines the installment schedule of this Recurring Donation. For example, if Installment Period is Monthly and Installment Frequency is 3, the schedule is defined as &quot;every 3 months&quot;.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The Installment Frequency along with Installment Period defines the installment schedule of this Recurring Donation. For example, if Installment Period is Monthly and Installment Frequency is 3, the schedule is defined as &quot;every 3 months&quot;.</inlineHelpText>
+        <label>Recurring Donation Installment Frequency</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Installment_Period__c</fullName>
+        <description>The Installment Period along with Installment Frequency defines the installment schedule of this Recurring Donation. For example, if Installment Period is Monthly and Installment Frequency is 3, the schedule is defined as &quot;every 3 months&quot;.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The Installment Period along with Installment Frequency defines the installment schedule of this Recurring Donation. For example, if Installment Period is Monthly and Installment Frequency is 3, the schedule is defined as &quot;every 3 months&quot;.</inlineHelpText>
+        <label>Recurring Donation Installment Period</label>
+        <length>20</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Name__c</fullName>
+        <description>Leave blank if you have a Recurring Donation Name Format selected. Otherwise, enter your own name.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Leave blank if you have a Recurring Donation Name Format selected. Otherwise, enter your own name.</inlineHelpText>
+        <label>Recurring Donation Name</label>
+        <length>80</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Payment_Method__c</fullName>
+        <description>The form of payment for this Recurring Donation. NPSP automatically copies the selected value to each related Payment record.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The form of payment for this Recurring Donation. NPSP automatically copies the selected value to each related Payment record.</inlineHelpText>
+        <label>Recurring Donation Payment Method</label>
+        <length>40</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Planned_Installments__c</fullName>
+        <description>Number of installments you expect to receive. Only used when Recurring Type is Fixed.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Number of installments you expect to receive. Only used when Recurring Type is Fixed.</inlineHelpText>
+        <label>Recurring Donation Planned Installments</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Recurring_Type__c</fullName>
+        <description>Open indicates an ongoing Recurring Donation. Fixed indicates a Recurring Donation that has a specific number of installments. For Fixed, you must also populate the Number of Planned Installments field.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Open indicates an ongoing Recurring Donation. Fixed indicates a Recurring Donation that has a specific number of installments. For Fixed, you must also populate the Number of Planned Installments field.</inlineHelpText>
+        <label>Recurring Donation Recurring Type</label>
+        <length>40</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Status_Reason__c</fullName>
+        <description>The reason this Recurring Donation has its current Status value.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The reason this Recurring Donation has its current Status value.</inlineHelpText>
+        <label>Recurring Donation Status Reason</label>
+        <length>80</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Recurring_Donation_Status__c</fullName>
+        <description>Indicates if this Recurring Donation is actively in use, temporarily suspended, or closed.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Indicates if this Recurring Donation is actively in use, temporarily suspended, or closed.</inlineHelpText>
+        <label>Recurring Donation Status</label>
+        <length>40</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Status__c</fullName>
         <description>The status of the import for this record, for example, Imported or Failed.</description>
         <externalId>false</externalId>

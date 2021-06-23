@@ -550,12 +550,30 @@ public with sharing class BDI_AdditionalObjectService {
     */
     private Boolean predecessorExists(BDI_ObjectWrapper objWrap, BDI_ObjectMapping predecessor){
         Boolean result = true;
+        String errorObjectText;
 
-        if (objWrap.dataImport.get(predecessor.Imported_Record_Field_Name) == null) {
+        //There is a special case for mappings based on Allocation that can have either Donation or Recurring
+        //Donation as predecessors.  In the future we should think about natively supporting multiple 
+        //predecessors.
+        if (objWrap.objMapping.Object_API_Name == SObjectType.Allocation__c.Name) {
+
+            //If both Recurring Donation and Donation have not been inserted then return false.
+            if (objWrap.dataImport.get(SObjectType.DataImport__c.fields.RecurringDonationImported__c.Name) == null
+                && objWrap.dataImport.get(SObjectType.DataImport__c.fields.DonationImported__c.Name) == null){
+                result = false;
+                errorObjectText = SobjectType.Opportunity.getLabel() + ' / ' + SobjectType.npe03__Recurring_Donation__c.getLabel();
+             }
+             
+        } else if (objWrap.dataImport.get(predecessor.Imported_Record_Field_Name) == null) {
             result = false;
+            errorObjectText = predecessor.MasterLabel;
+        }
+
+        //Construct and log error message if predecessor does not exist.
+        if (!result) {
             String error = String.format(
                 System.Label.bdiAdditionalObjPredNotFound,
-                new List<String>{predecessor.MasterLabel});
+                new List<String>{errorObjectText});
             logError(objWrap, error);
         }
 
