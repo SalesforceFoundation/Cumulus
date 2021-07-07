@@ -697,3 +697,13 @@ Field Permissions Cleanup
    ...  else { System.debug('Permissions Exist, skipping.'); }
  
    Run Task  execute_anon  apex=${addfieldback}
+
+
+Return Field Value
+    [Documentation]
+    [Arguments]  ${objectapiname}  ${rec_id}  ${field}
+
+    @{records} =  SOQL Query    SELECT ${field} FROM ${objectapiname} where Id = '${rec_id}'
+    &{field_value} =            Get From List  ${records}  0
+
+    [Return]  &{field_value}
