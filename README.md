@@ -2,17 +2,19 @@
 
 #### For Users
 
-* <a href="https://powerofus.force.com" target="_blank">Ask questions or get help</a>
-* <a href="https://github.com/SalesforceFoundation/NPSP/issues/new" target="_blank">Log a confirmed Issue</a> or <a href="https://powerofus.force.com/hub-ideas" target="_blank">Feature Request</a>
-* <a href="https://powerofus.force.com/NPSP_Documentation" target="_blank">User Documentation</a>
-* Check out existing <a href="https://github.com/SalesforceFoundation/NPSP/labels/bug" target="_blank">bugs</a> and <a href="https://powerofus.force.com/hub-ideas?product=NPSP" target="_blank">feature and enhancement requests.</a>
-* <a href="https://github.com/SalesforceFoundation/NPSP/releases" target="_blank">Release Notes and Beta Releases</a>
+* <a href="https://powerofus.force.com/s/group/0F980000000CjReCAK/nonprofit-success-pack" target="_blank">Ask questions or get help in the Power of Us Hub</a>
+* <a href="https://github.com/SalesforceFoundation/NPSP/issues" target="_blank">Review current Known Issues</a> Note: If you've discovered a problem that you believe is a bug in the NPSP, please <a href="https://help.salesforce.com/supportandservices?id=createCase&topic=Salesforceorg_Products_TOPIC" target="_blank">submit a support case</a>, including pertinent details such as a detailed report of the problem, what should be happening, and screenshots or video capture if possible.</a>
+* <a href="https://trailblazer.salesforce.com/ideaSearch?filter=Nonprofit+%3E+Nonprofit+Success+Pack" target="_blank">Log a Feature Request</a>
+* <a href="https://powerofus.force.com/NPSP_Documentation" target="_blank">User & Admin Documentation</a>
+* <a href="https://powerofus.force.com/s/group/0F980000000D9Qr/npsp-release-announcements" target="_blank">View version release notes on the Power of Us Hub</a>
+
 
 #### Try it out
 You can install NPSP utilizing our custom application installer into any Developer Edition, Sandbox or Enterprise Edition Salesforce org.
 * <a href="https://install.salesforce.org/products/npsp" target="_blank">NPSP Installer</a>
 
 #### Resources
+* <a href="https://github.com/SalesforceFoundation/NPSP/releases" target="_blank">Release Notes and Beta Releases</a>
 * <a href="https://powerofus.force.com/s/article/NPSP-Apex-Class-Descriptions" target="_blank">NPSP Apex class documentation</a>
 * <a href="https://powerofus.force.com/s/article/NPSP-Data-Dictionary" target="_blank">NPSP Data Dictionary</a>
 
