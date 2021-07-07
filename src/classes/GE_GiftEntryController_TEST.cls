@@ -35,7 +35,7 @@
 * @description Unit tests to cover methods in GE_GiftEntryController.
 */
 @isTest
-private with sharing class GE_GiftEntryController_TEST {
+public with sharing class GE_GiftEntryController_TEST {
 
     @isTest static void createCreditCardElevateBatchShouldReturnFailureResponse() {
         GE_GiftEntryController.elevateBatchService = new ElevateBatchServiceInvalidRequest();
