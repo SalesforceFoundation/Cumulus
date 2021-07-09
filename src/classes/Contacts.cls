@@ -59,7 +59,7 @@ public inherited sharing class Contacts extends fflib_SObjects {
     }
 
     public void onBeforeInsert() {
-        synchronizeNamingExclusions();
+        syncNamingExclusionsBeforeInsert();
     }
 
     /**
@@ -107,7 +107,7 @@ public inherited sharing class Contacts extends fflib_SObjects {
     }
 
     public void onBeforeUpdate() {
-        applyExclusionsStringChangesToCheckboxes();
+        syncNamingExclusionsBeforeUpdate();
     }
 
     /**
@@ -643,15 +643,43 @@ public inherited sharing class Contacts extends fflib_SObjects {
         return new Contacts(consInHouseholds);
     }
 
-    private void applyExclusionsStringChangesToCheckboxes() {
+    private void syncNamingExclusionsBeforeInsert() {
         for (Contact con : (List<Contact>) getRecords()) {
             HouseholdNamingExclusionsString namingExclusionsString =
                     new HouseholdNamingExclusionsString(con);
-            HouseholdNamingExclusionsString oldNamingExclusionsString =
-                    new HouseholdNamingExclusionsString(oldVersionOf(con));
-            if (!namingExclusionsString.equals(oldNamingExclusionsString)) {
-                HouseholdNamingExclusionsCheckboxes exclusionsAsCheckboxes = new HouseholdNamingExclusionsCheckboxes(con);
+
+            HouseholdNamingExclusionsCheckboxes exclusionsAsCheckboxes =
+                    new HouseholdNamingExclusionsCheckboxes(con);
+
+            if (namingExclusionsString.hasNamingExclusions()) {
                 exclusionsAsCheckboxes.updateFrom(namingExclusionsString);
+                setExclusionsCheckboxes(con, exclusionsAsCheckboxes);
+            }
+
+            if (exclusionsAsCheckboxes.hasNamingExclusions()) {
+                namingExclusionsString.synchronizeFrom(exclusionsAsCheckboxes);
+                setExclusionsStringFor(con, namingExclusionsString.value());
+            }
+        }
+    }
+
+    private void syncNamingExclusionsBeforeUpdate() {
+        for (Contact con : (List<Contact>) getRecords()) {
+            HouseholdNamingExclusionsCheckboxes exclusionsAsCheckboxes =
+                    new HouseholdNamingExclusionsCheckboxes(con);
+            HouseholdNamingExclusionsCheckboxes oldExclusionsAsCheckboxes =
+                    new HouseholdNamingExclusionsCheckboxes(oldVersionOf(con));
+            HouseholdNamingExclusionsString householdNamingExclusionsString =
+                    new HouseholdNamingExclusionsString(con);
+            HouseholdNamingExclusionsString oldHouseholdNamingExclusionsString =
+                    new HouseholdNamingExclusionsString(oldVersionOf(con));
+
+            if (!exclusionsAsCheckboxes.equals(oldExclusionsAsCheckboxes)) {
+                householdNamingExclusionsString.synchronizeFrom(exclusionsAsCheckboxes);
+                setExclusionsStringFor(con, householdNamingExclusionsString.value());
+            } else if (!householdNamingExclusionsString.equals
+                    (oldHouseholdNamingExclusionsString)) {
+                exclusionsAsCheckboxes.updateFrom(householdNamingExclusionsString);
                 setExclusionsCheckboxes(con, exclusionsAsCheckboxes);
             }
         }
