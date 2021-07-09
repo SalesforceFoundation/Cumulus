@@ -370,17 +370,18 @@
         <members>HH_Households_TDTM</members>
         <members>HH_Households_TEST</members>
         <members>HH_INaming</members>
-        <members>HH_NameSpec</members>
-        <members>HH_NameSpec_TEST</members>
         <members>HH_ManageHH_CTRL</members>
         <members>HH_ManageHH_TEST</members>
         <members>HH_ManageHousehold_EXT</members>
+        <members>HH_NameSpec</members>
+        <members>HH_NameSpec_TEST</members>
         <members>HH_OppContactRoles_TDTM</members>
         <members>HH_OppContactRoles_TEST</members>
         <members>HouseholdAccounts</members>
         <members>HouseholdName</members>
         <members>HouseholdNamingExclusionsCheckboxes</members>
         <members>HouseholdNamingExclusionsString</members>
+        <members>HouseholdNamingExclusions_TEST</members>
         <members>HouseholdNamingService</members>
         <members>HouseholdNamingService_TEST</members>
         <members>HouseholdNamingUserControlledFields</members>
