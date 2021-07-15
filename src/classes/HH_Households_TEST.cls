@@ -214,7 +214,7 @@ public with sharing class HH_Households_TEST {
                 dummyHouseholdNamingSettings());
     }
 
-    private static void setupHouseholdSettings() {
+    public static void setupHouseholdSettings() {
         UTIL_CustomSettingsFacade.getHouseholdsSettingsForTests(
                 new npo02__Households_Settings__c (
                         npo02__Household_Rules__c = HH_Households.ALL_PROCESSOR,
@@ -400,7 +400,7 @@ public with sharing class HH_Households_TEST {
                                 HH_Households.NO_HOUSEHOLDS_PROCESSOR));
     }
 
-    private static void setOrgContactSettingsToOneToOne() {
+    public static void setOrgContactSettingsToOneToOne() {
         UTIL_CustomSettingsFacade.getContactsSettingsForTests(
                 new npe01__Contacts_and_Orgs_Settings__c (
                         npe01__Account_Processor__c =
