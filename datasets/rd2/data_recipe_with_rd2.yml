@@ -193,19 +193,16 @@
     RecordType: HH_Account
   friends:
     - object: Contact
-      just_once: true
       include: ContactName, ContactAddress
       fields:
         AccountId:
           reference: multiHousehold
     - object: Contact
-      just_once: true
       include: ContactName
       fields:
         AccountId:
           reference: multiHousehold
     - object: Opportunity
-      just_once: true
       fields:
         RecordType: Donation
         CloseDate:

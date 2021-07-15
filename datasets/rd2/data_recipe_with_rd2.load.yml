@@ -1,0 +1,3 @@
+- sf_object: Allocation__c
+  api: bulk
+  bulk_mode: Serial

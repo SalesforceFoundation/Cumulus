@@ -1334,7 +1334,6 @@ flows:
                     num_records_tablename: Contact
                     batch_size: 200000
                     bulk_mode: parallel
-                    mapping: datasets/rd2/data_recipe_with_rd2_mapping.yml
             25:
                 task: restore_triggers
                 ## Reactivate the Rollup and Merge triggers after data loading completes

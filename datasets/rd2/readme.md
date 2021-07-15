@@ -23,6 +23,7 @@
        - All RD's will get exactly 1 historical ClosedWon Opportunity
    - Create 0 to 5 Opportunities for the Contact & Related Household Account
        - CloseDate between 3 years ago and 6 months in the future (ClosedWon if in the past)
+   - Note: Allocation records are always inserted using the Bulk Serial api as defined in the related load.yml file.
 
 ##### To generate 500000 Contacts with sample RD2 and Opp data:
 `cci flow run test_data_rd2_managed -o generate_and_load_from_yaml__num_records 500000 --org {orgname}`
