@@ -125,7 +125,7 @@ public inherited sharing class RD2_OpportunityEvaluationService {
     /***
     * @description Applies DML operations on records and keeps track of errors
     */
-    private RD2_DatabaseService dbService {
+    public RD2_DatabaseService dbService {
         get {
             if (dbService == null) {
                 dbService = new RD2_DatabaseService();
@@ -569,5 +569,161 @@ public inherited sharing class RD2_OpportunityEvaluationService {
         }
 
         return paidInstallmentsByRDId;
+    }
+
+
+    /**
+     * @description Database DML service to insert/update/delete records and keep track of failed RD Ids
+     *    Use without sharing context so Guest Site User can perform DML operation
+     */
+    public without sharing class DatabaseService {
+        private SObjectType rdSObjectType = npe03__Recurring_Donation__c.SObjectType;
+        private SObjectType oppSObjectType = Opportunity.SObjectType;
+
+        private ERR_Handler.Errors errorResult = new ERR_Handler.Errors();
+        private Set<Id> failedRDIds = new Set<Id>();
+
+        /***
+        * @description Creates specified records
+        * @param records Records to create
+        * @return Set<Id> Ids of created records
+        */
+        public Set<Id> insertRecords(List<SObject> records) {
+            if (records == null || records.isEmpty()) {
+                return new Set<Id>();
+            }
+
+            List<Database.SaveResult> saveResults = Database.insert(records, false);
+            recordsInsertedCount += records.size();
+            dmlCount++;
+            handleErrors(saveResults, records);
+
+            return getSuccessIds(saveResults);
+        }
+
+        /***
+        * @description Updates specified records
+        * @param records Records to update
+        * @return void
+        */
+        public void updateRecords(List<SObject> records) {
+            if (records == null || records.isEmpty()) {
+                return;
+            }
+
+            List<Database.SaveResult> saveResults = Database.update(records, false);
+            recordsUpdatedCount += records.size();
+            dmlCount++;
+            handleErrors(saveResults, records);
+        }
+
+        /***
+        * @description Extracts Ids of records that were successfully created/update
+        * @param saveResults Insert/update DML operation results
+        * @return Set<Id> Ids of successfully created/updated records
+        */
+        private Set<Id> getSuccessIds(Database.SaveResult[] saveResults) {
+            Set<Id> successIds = new Set<Id>();
+
+            if (saveResults == null || saveResults.isEmpty()) {
+                return successIds;
+            }
+
+            for (Database.SaveResult result : saveResults) {
+                if (result.isSuccess()) {
+                    successIds.add(result.getId());
+                }
+            }
+            return successIds;
+        }
+
+        /***
+        * @description Deletes specified records
+        * @param records Records to delete
+        * @return void
+        */
+        public void deleteRecords(List<SObject> records) {
+            if (records == null || records.isEmpty()) {
+                return;
+            }
+
+            List<Database.DeleteResult> deleteResults = Database.delete(records, false);
+            dmlCount++;
+            handleErrors(deleteResults, records);
+        }
+
+        /***
+        * @description Keeps track of errors
+        * @param dmlResults Database DML results upon insert/update/delete operation
+        * @param records SObject records in DML operation
+        * @return void
+        */
+        private void handleErrors(List<Object> dmlResults, List<SObject> records) {
+            if (records == null || records.isEmpty()) {
+                return;
+            }
+
+            //extract errors
+            ERR_Handler.Errors dmlErrors = ERR_Handler.getErrorsOnly(dmlResults, records);
+            if (dmlErrors.errorRecords.isEmpty()) {
+                return;
+            }
+
+            errorResult.errorRecords.addAll(
+                dmlErrors.errorRecords
+            );
+
+            //track failed Recurring Donation Ids
+            SObjectType recordSObjectType = records[0].getSObjectType();
+            if (recordSObjectType == oppSObjectType) {
+                for (Integer i = 0; i < dmlResults.size(); i++) {
+                    Boolean isSuccess = dmlResults[i] instanceof Database.SaveResult
+                        ? ((Database.SaveResult)dmlResults[i]).isSuccess()
+                        : ((Database.DeleteResult)dmlResults[i]).isSuccess();
+
+                    if (!isSuccess) {
+                        failedRDIds.add((Id) records[i].get('npe03__Recurring_Donation__c'));
+                    }
+                }
+
+            } else if (recordSObjectType == rdSObjectType) {
+                for (Error__c error : dmlErrors.errorRecords) {
+                    failedRDIds.add(error.Related_Record_ID__c);
+                }
+            }
+        }
+
+        /**
+        * @description Creates Error__c record for each errorResult.errorRecords
+        * @return void
+        */
+        public void processErrors() {
+            errorResult.errorsExist = !errorResult.errorRecords.isEmpty();
+
+            ERR_Handler.processErrorsOnly(errorResult, ERR_Handler_API.Context.RD.name());
+        }
+
+        /***
+        * @description Returns number of failed Recurring Donations
+        * @return Integer
+        */
+        public Integer getRecordsFailed() {
+            failedRDIds.remove(null);
+
+            return failedRDIds.size();
+        }
+
+        private Integer recordsUpdatedCount = 0;
+        private Integer recordsInsertedCount = 0;
+        private Integer dmlCount = 0;
+        public Integer getDmlCount() {
+            return this.dmlCount;
+        }
+        public Integer getUpdatedCount() {
+            return this.recordsUpdatedCount;
+        }
+        public Integer getInsertedCount() {
+            return this.recordsInsertedCount;
+        }    
     }
 }

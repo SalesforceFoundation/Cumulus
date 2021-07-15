@@ -126,6 +126,7 @@ public abstract class CRLP_Batch_Base_Skew extends CRLP_Batch_Base {
     public void execute(Database.BatchableContext bc, List<SObject> detailRecords) {
 
         this.batchIteration++;
+        this.totalRecordsProcessed += detailRecords.size();
 
         try {
             // Retrieve and store the cached list of Rollup__mdt records into the Rollups Processor
@@ -216,6 +217,8 @@ public abstract class CRLP_Batch_Base_Skew extends CRLP_Batch_Base {
         } catch (Exception ex) {
             ERR_Handler.processError(ex, ERR_Handler_API.Context.CRLP + '.' + this.jobType.name());
         }
+
+        this.totalApexDmlRows += Limits.getDmlRows();
     }
 
     /********************************************************************************************************
@@ -250,6 +253,7 @@ public abstract class CRLP_Batch_Base_Skew extends CRLP_Batch_Base {
             logDebugInfo(additionalInfo);
         }
 
+        logJobResults(bc.getJobId());
     }
 
     /**

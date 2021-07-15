@@ -253,6 +253,7 @@ public abstract class CRLP_Batch_Base_NonSkew extends CRLP_Batch_Base {
                         .withRelatedRecords(paymentsByOpp);
 
                 List<SObject> updatedRecords = processor.startRollupProcessing();
+                this.totalRecordsProcessed += detailRecords.size();
 
                 // Handle dml on the records to be updated
                 if (updatedRecords != null && !updatedRecords.isEmpty()) {
@@ -266,6 +267,8 @@ public abstract class CRLP_Batch_Base_NonSkew extends CRLP_Batch_Base {
             ex.setMessage(ex.getMessage() + '\n\nRollups State:\n' + CRLP_Debug_UTIL.getCurrentRollupState());
             ERR_Handler.processError(ex, ERR_Handler_API.Context.CRLP + '.' + this.jobType.name());
         }
+
+        this.totalApexDmlRows += Limits.getDmlRows();
     }
 
     /**
@@ -284,6 +287,8 @@ public abstract class CRLP_Batch_Base_NonSkew extends CRLP_Batch_Base {
         if (isChunkModeEnabled && hasAdditionalRecordsToProcess(lastIdProcessed)) {
             submitBatchableJobForNextChunk();
         }
+
+        logJobResults(bc.getJobId());
     }
 
     /**

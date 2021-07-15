@@ -111,7 +111,7 @@ public without sharing class RD2_OpportunityEvaluation_BATCH
     private Integer recordsFailed = 0;
 
     /**
-     * @description Contains current date value so the batch can be executed for a 
+     * @description Contains current date value so the batch can be executed for a
      * date referenced in past, today or a future date. Regardless of the value, the current date
      * is considered "today" for the Opp evaluation, Opp and RD Schedule services.
      * The current date is used as a cut off date to filter out Opportunities in Opp services
@@ -167,9 +167,9 @@ public without sharing class RD2_OpportunityEvaluation_BATCH
         if (isConcurrentBatch) {
             new UTIL_BatchJobService().logConcurrentBatchError(batchClassName, ERR_Handler_API.Context.RD);
             query += ' LIMIT 0';
-        }    
+        }
         return Database.getQueryLocator(query);
-        
+
     }
 
     /**
@@ -187,8 +187,14 @@ public without sharing class RD2_OpportunityEvaluation_BATCH
             .withRds(UTIL_SObject.extractIds(rds))
             .withCurrentDate(currentDate)
             .evaluateOpportunities();
-        
+
         recordsFailed += evalService.getRecordsFailed();
+
+        // The Opportunity Service does not expose details on the exact number of RDs & Opps modified
+        // so have to use the simple getDmlRows() method to retrieve.
+        // this.totalApexDmlRows += Limits.getDmlRows();
+        // this.totalCommits += evalService.dbService.getDmlCount();
+        // this.totalRecordsModified += evalService.dbService.getUpdatedCount() + evalService.dbService.getInsertedCount();
     }
 
     /**
@@ -211,6 +217,7 @@ public without sharing class RD2_OpportunityEvaluation_BATCH
     public void finish(Database.BatchableContext context) {
         new RD2_Settings()
             .saveLatestBatchResults(context.getJobId(), recordsProcessed, recordsFailed);
+        logJobResults(context.getJobId());
     }
 
     /**
@@ -229,4 +236,13 @@ public without sharing class RD2_OpportunityEvaluation_BATCH
     * @description Custom batch exception
     */
     private class BatchException extends Exception { }
+
+    /** @description Simple counters used to track state */
+    private Integer totalApexDmlRows = 0;
+    private Integer totalRecordsModified = 0;
+    private Integer totalCommits = 0;
+    private void logJobResults(Id batchjobId) {
+        UTIL_BatchJobService.logJobResult(batchjobId, batchClassName, this.recordsProcessed,
+            this.totalRecordsModified, this.totalCommits, this.totalApexDmlRows);
+    }
 }

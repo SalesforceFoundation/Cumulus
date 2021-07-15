@@ -65,6 +65,10 @@ public abstract class CRLP_Batch_Base {
     protected Integer batchIteration = 0;
 
     /** @description Simple counters used to track state */
+    protected Integer totalRecordsProcessed = 0;
+    protected Integer totalApexDmlRows = 0;
+
+    /** @description Simple counters used to track state */
     protected Integer totalRecordsModified = 0;
 
     /** @description Simple counters used to track state */
@@ -679,5 +683,18 @@ public abstract class CRLP_Batch_Base {
             ).left(32768)
         );
         insert logEntry;
+    }
+
+    protected void updateLogData() {
+        this.totalRecordsProcessed += Limits.getQueryRows();
+        this.totalApexDmlRows += Limits.getDmlRows();
+    }
+
+    protected void logJobResults(Id batchjobId) {
+        this.totalApexDmlRows += Limits.getDmlRows();
+
+        String jobName = ERR_Handler_API.Context.CRLP.name() + ': ' + this.jobType.name() + ' ' + this.jobMode.name();
+        UTIL_BatchJobService.logJobResult(batchjobId, jobName, this.totalRecordsProcessed,
+            this.totalRecordsModified, this.totalCommits, this.totalApexDmlRows);
     }
 }

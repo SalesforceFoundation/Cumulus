@@ -51,7 +51,7 @@ public without sharing class UTIL_BatchJobService {
 
     /***
     * @description Contains max number of batch completed days to report.
-    * The actual number of days passes is not relevant for any display after this point. 
+    * The actual number of days passes is not relevant for any display after this point.
     */
     @TestVisible
     private static final Integer MAX_DAYS_EXCEEDED = 365;
@@ -81,7 +81,7 @@ public without sharing class UTIL_BatchJobService {
     public Boolean isInProgress(Id batchId) {
         if (batchId == null) {
             return false;
-        } 
+        }
 
         return (Database.countQuery('SELECT Count() FROM AsyncApexJob WHERE Id = :batchId AND Status IN :IN_PROGRESS_STATUSES') > 0);
     }
@@ -168,7 +168,7 @@ public without sharing class UTIL_BatchJobService {
         Long milliseconds = Datetime.now().getTime() - completedDate.getTime();
         Long days = milliseconds /1000 /60 /60 /24;
 
-        return days > MAX_DAYS_EXCEEDED ? MAX_DAYS_EXCEEDED : Integer.valueOf(days);      
+        return days > MAX_DAYS_EXCEEDED ? MAX_DAYS_EXCEEDED : Integer.valueOf(days);
     }
 
     /***
@@ -176,11 +176,11 @@ public without sharing class UTIL_BatchJobService {
     * @param className Apex class name
     * @return List<AsuncApexJob>
     */
-    public List<AsyncApexJob> getAsyncApexJobInProgress(String className) {      
+    public List<AsyncApexJob> getAsyncApexJobInProgress(String className) {
         String namespacePrefix = UTIL_Namespace.getNamespace();
-        
+
         //Remove the namespace from the class name
-        className = UTIL_Namespace.removeClassNamespace(className);  
+        className = UTIL_Namespace.removeClassNamespace(className);
 
         List<AsyncApexJob> apexJobs = [
             SELECT
@@ -195,13 +195,13 @@ public without sharing class UTIL_BatchJobService {
                 AND Status IN :IN_PROGRESS_STATUSES
             ORDER BY CreatedDate DESC
         ];
-       
+
         return apexJobs;
     }
 
     /***
     * @description Returns the latest batch job for the specified job Id
-    * @param jobId Batch job Id 
+    * @param jobId Batch job Id
     * @return AsyncApexJob
     */
     public AsyncApexJob getAsyncApexJob(Id jobId) {
@@ -228,7 +228,7 @@ public without sharing class UTIL_BatchJobService {
         String namespacePrefix = UTIL_Namespace.getNamespace();
 
         //Remove the namespace from the class name
-        className = UTIL_Namespace.removeClassNamespace(className);  
+        className = UTIL_Namespace.removeClassNamespace(className);
 
         List<AsyncApexJob> apexJobs = [
             SELECT
@@ -407,7 +407,7 @@ public without sharing class UTIL_BatchJobService {
         * @return Integer
         */
         private Integer getCompletedDaysBetween() {
-            return new UTIL_BatchJobService().getCompletedDaysBetween(completedDate, status);    
+            return new UTIL_BatchJobService().getCompletedDaysBetween(completedDate, status);
         }
 
         /***
@@ -469,4 +469,29 @@ public without sharing class UTIL_BatchJobService {
         }
     }
 
+    /**
+     * @description Log Batch Job Results - FOR PERFORMANCE TESTING
+     */
+    public static void logJobResult(Id jobId, String batchName, Integer processedCount, Integer modifiedCount, Integer dmlCount, Integer apexDmlRows) {
+        Map<String, Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe();
+        if (!globalDescribe.containsKey('BatchResultLog__c')) {
+            return;
+        }
+
+        UTIL_BatchJobService jobService = new UTIL_BatchJobService();
+        UTIL_BatchJobService.BatchJob job = new UTIL_BatchJobService.BatchJob(jobService.getAsyncApexJob(jobId));
+
+        SObject log = globalDescribe.get('BatchResultLog__c').newSObject();
+        log.put('Name', batchName);
+        log.put('BatchJobId__c', jobId);
+        log.put('StartDate__c', job.createdDate);
+        log.put('EndDate__c', job.completedDate);
+        log.put('Duration__c', job.timeElapsed);
+        log.put('RecordsProcessedCount__c', processedCount);
+        log.put('RecordsModifiedCount__c', modifiedCount);
+        log.put('DMLOperationCount__c', dmlCount);
+        log.put('DMLRows__c', apexDmlRows);
+        log.put('ChildBatchCount__c', job.jobItemsProcessed);
+        insert log;
+    }
 }
