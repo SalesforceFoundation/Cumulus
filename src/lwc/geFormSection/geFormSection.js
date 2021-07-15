@@ -4,6 +4,7 @@ import { isUndefined } from 'c/utilCommon';
 const COLLAPSED_DISPLAY_MODE = 'collapsed';
 
 export default class GeFormSection extends LightningElement {
+    @api gift;
     @api section;
     @api widgetConfig;
     @api formState;

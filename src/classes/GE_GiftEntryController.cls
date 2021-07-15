@@ -52,6 +52,42 @@ public with sharing class GE_GiftEntryController {
         set;
     }
 
+    // TODO: Remove this method! Exists only to provide representative soft credit data
+    //       For work in progress
+    @AuraEnabled(cacheable=true)
+    public static List<OpportunityContactRole> getDummySoftCredits() {
+        Integer numRecords = 3;
+        List<String> roles = new List<String> {
+            'Influencer',
+            'Household Member',
+            'Decision Maker'
+        };
+
+        List<OpportunityContactRole> dummySoftCredits = new List<OpportunityContactRole>();
+        
+        try {
+            List<Contact> contacts = [
+                SELECT Id
+                FROM Contact 
+                ORDER BY CreatedDate DESC 
+                LIMIT :numRecords];
+
+            if(!contacts.isEmpty()) {
+                for (Integer i = 0; i < numRecords; i++) {
+                    OpportunityContactRole ocr = new OpportunityContactRole(
+                        Role = roles[Math.mod(i,roles.size())],
+                        ContactId = contacts[Math.mod(i,contacts.size())].Id
+                    );
+                    dummySoftCredits.add(ocr);
+                }
+            }
+
+            return dummySoftCredits;
+        } catch (Exception ex) {
+            throw new AuraHandledException(ex.getMessage());
+        }
+    }
+
     @AuraEnabled
     public static GiftBatchView getGiftBatchView(String giftBatchId){
         try {

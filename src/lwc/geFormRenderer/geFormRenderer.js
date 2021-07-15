@@ -150,6 +150,7 @@ export default class GeFormRenderer extends LightningElement{
     @api sections = [];
     @api showSpinner = false;
     @api batchId;
+    @api gift;
     @api submissions = [];
     @api hasPageLevelError = false;
     @api pageLevelErrorMessageList = [];

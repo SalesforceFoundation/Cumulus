@@ -2395,6 +2395,7 @@
         <members>commonSave</members>
         <members>commonSaveAndClose</members>
         <members>commonSelectOptionPlaceholder</members>
+        <members>commonSoftCredits</members>
         <members>commonTemplate</members>
         <members>commonTemplates</members>
         <members>commonUnknownError</members>
@@ -2445,6 +2446,7 @@
         <members>flsReadAccessError</members>
         <members>gauAllocationErrorGeneral</members>
         <members>geAddNewAllocation</members>
+        <members>geAddSoftCredit</members>
         <members>geAssistiveActiveSection</members>
         <members>geAssistiveBatchHeaderRemoveField</members>
         <members>geAssistiveDescriptionFieldOptional</members>
@@ -4412,6 +4414,8 @@
         <members>geFormWidget</members>
         <members>geFormWidgetAllocation</members>
         <members>geFormWidgetRowAllocation</members>
+        <members>geFormWidgetSoftCredit</members>
+        <members>geFormWidgetSoftCreditRow</members>
         <members>geFormWidgetTokenizeCard</members>
         <members>geGiftEntryFormApp</members>
         <members>geHome</members>

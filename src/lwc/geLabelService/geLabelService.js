@@ -44,6 +44,7 @@ import commonRequired from '@salesforce/label/c.commonRequired';
 import commonReviewForm from '@salesforce/label/c.commonReviewForm';
 import commonSave from '@salesforce/label/c.commonSave';
 import commonSaveAndClose from '@salesforce/label/c.commonSaveAndClose';
+import commonSoftCredits from '@salesforce/label/c.commonSoftCredits';
 import commonTemplate from '@salesforce/label/c.commonTemplate';
 import commonTemplates from '@salesforce/label/c.commonTemplates';
 import commonUnknownError from '@salesforce/label/c.commonUnknownError';
@@ -53,6 +54,7 @@ import commonViewMore from '@salesforce/label/c.commonViewMore';
 import commonWarning from '@salesforce/label/c.commonWarning';
 import commonYes from '@salesforce/label/c.commonYes';
 import geAddNewAllocation from '@salesforce/label/c.geAddNewAllocation';
+import geAddSoftCredit from '@salesforce/label/c.geAddSoftCredit';
 import geAssistiveActiveSection from '@salesforce/label/c.geAssistiveActiveSection';
 import geAssistiveBatchHeaderRemoveField from '@salesforce/label/c.geAssistiveBatchHeaderRemoveField';
 import geAssistiveDescriptionFieldOptional from '@salesforce/label/c.geAssistiveDescriptionFieldOptional';
@@ -290,6 +292,7 @@ class GeLabelService {
         commonReviewForm,
         commonSave,
         commonSaveAndClose,
+        commonSoftCredits,
         commonTemplate,
         commonTemplates,
         commonUnknownError,
@@ -299,6 +302,7 @@ class GeLabelService {
         commonWarning,
         commonYes,
         geAddNewAllocation,
+        geAddSoftCredit,
         geAssistiveActiveSection,
         geAssistiveBatchHeaderRemoveField,
         geAssistiveDescriptionFieldOptional,

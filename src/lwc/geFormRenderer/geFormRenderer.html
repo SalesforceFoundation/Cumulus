@@ -119,6 +119,7 @@
                                   for:each={sections}
                                   for:item='section'>
                             <c-ge-form-section key={section.id}
+                                               gift={gift}
                                                section={section}
                                                onregisterpaymentwidget={handleRegisterPaymentWidget}
                                                widget-config={widgetConfig}
@@ -170,6 +171,7 @@
                                       for:each={sections}
                                       for:item='section'>
                                 <c-ge-form-section key={section.id}
+                                                   gift={gift}
                                                    section={section}
                                                    onregisterpaymentwidget={handleRegisterPaymentWidget}
                                                    widget-config={widgetConfig}

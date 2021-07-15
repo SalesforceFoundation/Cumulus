@@ -90,6 +90,9 @@ class GeTemplateBuilderService {
 
         fieldMappingByDevName.geFormWidgetAllocation =
             GeWidgetService.definitions.geFormWidgetAllocation;
+        
+        fieldMappingByDevName.geFormWidgetSoftCredit =
+            GeWidgetService.definitions.geFormWidgetSoftCredit;
 
         objectMappingByDevName.Widgets = {
             DeveloperName: 'Widgets',
@@ -97,7 +100,8 @@ class GeTemplateBuilderService {
         };
 
         fieldMappingsByObjMappingDevName.Widgets = [
-            fieldMappingByDevName.geFormWidgetAllocation
+            fieldMappingByDevName.geFormWidgetAllocation,
+            fieldMappingByDevName.geFormWidgetSoftCredit
         ];
 
         // If the org is an Elevate customer, add the Salesforce.org Elevate widget

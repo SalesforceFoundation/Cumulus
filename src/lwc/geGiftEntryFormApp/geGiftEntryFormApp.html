@@ -51,6 +51,7 @@
             <template if:false={isBatchProcessing}>
                 <c-ge-form-renderer
                         batch-id={recordId}
+                        gift={gift}
                         onsubmit={handleSubmit}
                         onsectionsretrieved={handleSectionsRetrieved}
                         onpermissionerror={handlePermissionErrors}
@@ -86,6 +87,7 @@
     <template if:false={isBatchMode}>
         <c-ge-form-renderer
                 batch-id={recordId}
+                gift={gift}
                 onsubmit={handleSubmit}
                 onsectionsretrieved={handleSectionsRetrieved}
                 onpermissionerror={handlePermissionErrors}

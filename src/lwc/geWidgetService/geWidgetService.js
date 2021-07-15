@@ -1,6 +1,7 @@
 import { getLikeMatchByKey } from 'c/utilCommon';
 import {
     ALLOCATION_WIDGET_DEVELOPER_NAME_STUBS,
+    SOFT_CREDIT_WIDGET_DEVELOPER_NAME_STUBS,
     TOKENIZE_CARD_WIDGET_NAME_STUBS
 } from './widgetStubs';
 import GeLabelService from 'c/geLabelService';
@@ -35,6 +36,17 @@ class GeWidgetService {
                     ALLOCATION_WIDGET_DEVELOPER_NAME_STUBS.objectMappingDeveloperNameStubs,
                     ALLOCATION_WIDGET_DEVELOPER_NAME_STUBS.fieldMappingDeveloperNameStubs)
             },
+            geFormWidgetSoftCredit: {
+                DeveloperName: 'geFormWidgetSoftCredit',
+                MasterLabel: GeLabelService.CUSTOM_LABELS.commonSoftCredits,
+                Target_Object_Mapping_Dev_Name: 'Widgets',
+                Target_Field_Label: GeLabelService.CUSTOM_LABELS.commonSoftCredits,
+                Required: 'No',
+                Element_Type: 'widget',
+                ...this.getMappingDeveloperNames(
+                    SOFT_CREDIT_WIDGET_DEVELOPER_NAME_STUBS.objectMappingDeveloperNameStubs,
+                    SOFT_CREDIT_WIDGET_DEVELOPER_NAME_STUBS.fieldMappingDeveloperNameStubs)
+            },            
             geFormWidgetTokenizeCard: {
                 DeveloperName: 'geFormWidgetTokenizeCard',
                 MasterLabel: GeLabelService.CUSTOM_LABELS.commonPaymentServices,

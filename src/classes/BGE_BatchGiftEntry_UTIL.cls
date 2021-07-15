@@ -70,7 +70,7 @@ public with sharing class BGE_BatchGiftEntry_UTIL {
     * @return List<String> list of DataImport__c field api names
     */
     public static List<String> getDataImportFields(Id batchId, Boolean includeRelationshipFields) {
-        List<String> fieldApiNames = new List<String>();
+        Set<String> fieldApiNames = new Set<String>();
         List<String> dataImportCoreFields = getCoreDataImportFields(includeRelationshipFields);
 
         // Query the Batch to determine which set of fields will be needed.
@@ -83,7 +83,7 @@ public with sharing class BGE_BatchGiftEntry_UTIL {
             fieldApiNames.addAll(getActiveFieldNamesFromBatch(batchId));
             fieldApiNames.addAll(dataImportCoreFields);
 
-            return fieldApiNames;
+            return new List<String>( fieldApiNames );
         }
 
         fieldApiNames.addAll(getDataImportElevateFields(batchId));
@@ -96,8 +96,8 @@ public with sharing class BGE_BatchGiftEntry_UTIL {
         // Must explicitly use BDI_MappingServiceAdvanced here (as opposed to
         // BDI_DataImportService.getDefaultMappingService()) because of the need
         // to reference the fieldMappingByDevName property.
-        fieldApiNames.addAll(getTemplateFields(batch, fieldApiNames));
-        return fieldApiNames;
+        fieldApiNames.addAll(getTemplateFields(batch, new List<String> (fieldApiNames)));
+        return new List<String>( fieldApiNames );
     }
 
     private static List<String> getTemplateFields(DataImportBatch__c batch, List<String> fieldApiNames) {
