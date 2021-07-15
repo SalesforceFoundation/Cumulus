@@ -2047,9 +2047,12 @@
         <customTabListAdditionalFields>Contact1_Lastname__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>Account1_Name__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>LAST_UPDATE</customTabListAdditionalFields>
-        <excludedStandardButtons>New</excludedStandardButtons>
+        <excludedStandardButtons>OpenListInQuip</excludedStandardButtons>
         <excludedStandardButtons>Accept</excludedStandardButtons>
         <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
+        <excludedStandardButtons>MassChangeOwner</excludedStandardButtons>
+        <excludedStandardButtons>PrintableListView</excludedStandardButtons>
+        <excludedStandardButtons>IsotopeSubscription</excludedStandardButtons>
         <listViewButtons>Process_Data_Import</listViewButtons>
         <listViewButtons>Delete_All_Data_Import_Records</listViewButtons>
         <listViewButtons>Delete_Imported_Data_Import_Records</listViewButtons>
