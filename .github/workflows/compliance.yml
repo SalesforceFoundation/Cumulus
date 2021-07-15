@@ -1,0 +1,33 @@
+name: Compliance_Checking
+on:
+  pull_request:
+    paths:    
+      - '**.cls'
+      - '!unpackaged/**.cls'
+jobs:
+  CoreLoggingCompliance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Check for References to the SfdoLogging class (not permitted for direct use)
+        id: diff
+        run: |
+          if [ $GITHUB_BASE_REF ]; then
+            git fetch origin $GITHUB_HEAD_REF:$GITHUB_HEAD_REF
+            export DIFF=$( git diff-tree origin/$GITHUB_BASE_REF..$GITHUB_HEAD_REF --patch-with-raw | grep 'SfdoLogUtils.log' )
+          fi
+
+          # echo "$DIFF"
+          # Escape newlines (replace \n with %0A)
+          echo "::set-output name=diff::$( echo "$DIFF" | sed ':a;N;$!ba;s/\n/%0A/g' )"
+
+          if [ $DIFF ]; then
+            echo "::error::Invalid direct use of the `SfdoLogUtils` core class. Splunk Instrumentation MUST use the `sfdoInstrumentationService` class."
+            # Labels are probably not supported for PR's natively. Might need to import an external solution (security first!)
+            # labels:
+            #   - "invalid"
+            #   - "Do Not Merge"
+          fi
+      

@@ -568,6 +568,8 @@
         <members>RP_YoutubeController</members>
         <members>RP_YoutubeTest</members>
         <members>RP_YoutubeTestMock</members>
+        <members>SfdoInstrumentationEnum</members>
+        <members>SfdoInstrumentationService</members>
         <members>STG_DataBoundMultiSelect_CTRL</members>
         <members>STG_InstallScript</members>
         <members>STG_InstallScript_TEST</members>

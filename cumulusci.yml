@@ -580,6 +580,8 @@ tasks:
                     - NPSP_Engagement_Plan_Record_Page
                     - NPSP_GAU_Allocation
                     - NPSP_General_Accounting_Unit
+                Class:
+                    - SfdoLogUtils
 
     enable_pilot_in_scratch_org:
         description: Initialize the PilotEnabled Feature Parameter override in a Scratch Org environment
@@ -590,6 +592,13 @@ tasks:
                 %%%NAMESPACE%%%Error_Settings__c errSettings = %%%NAMESPACE%%%Error_Settings__c.getOrgDefaults();
                 errSettings.%%%NAMESPACE%%%OverrideFeature_PilotEnabled__c = true;
                 upsert errSettings;
+
+    deploy_core_mock_class:
+        description: Deploy a mock apex class that will prevent compilation errors when the packaged code references file-based apex in the core stack for instrumentation purposes
+        class_path: cumulusci.tasks.salesforce.Deploy
+        group: Salesforce Metadata
+        options:
+            path: unpackaged/pre/core_apex_class_mock
 
     run_tests:
         options:
@@ -831,6 +840,13 @@ flows:
                 options:
                     api_names: QA,Gift_Entry
 
+
+    deploy_unmanaged:
+        description: Override to the deploy_unmanaged flow to force a mock apex class to be deployed that will prevent compilation errors when the packaged code references file-based apex in the core stack for instrumentation purposes.
+        steps:
+            2.1:
+                when: not org_config.namespace
+                task: deploy_core_mock_class
 
     qa_org_namespaced:
         description: Execute the qa_org flow against a namespaced scratch org and patch help text.
@@ -1247,6 +1263,8 @@ flows:
                                 - Error__c.All
                                 - Grant_Deadline__c.All
                                 - Trigger_Handler__c.All_Triggers
+                            Class:
+                                - SfdoLogUtils
             2.7:
                 task: deploy_rd2_config
                 ## It's necessary to redeploy the RD2 config after deploying the "packaged" unmanaged code to
