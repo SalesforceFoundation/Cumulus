@@ -283,6 +283,9 @@ public with sharing class STG_SettingsService {
             upsert stgAllo;
             upsert stgCRLP;
             upsert stgLevels;
+
+            UTIL_PlatformCache platformCache = UTIL_PlatformCache.getInstance();
+            platformCache.fireInvalidatePlatformCacheEvent('NPSP Settings Changed');
         }
     }
 

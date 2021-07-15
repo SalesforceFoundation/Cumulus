@@ -33,38 +33,119 @@
 * @group Utilities
 * @description Utilities for working with the Platform Organization Cache
 */
-public class UTIL_PlatformCache {
+public class UTIL_PlatformCache implements UTIL_PlatformCache.Interface_x {
+
+    // ====================================================================
+    // INSTANCE METHODS IN THE INTERFACE AVAILBLE FOR MOCKING IN TESTS
+    // ====================================================================
 
     /**
-     * @description The expected name for the platform cache partition created by the customer org
+     * @description public Interface to enable mocking of this class functionality for unit tests in orgs
+     * that may or may not have multicurrency and/or platform cache enabled.
+     */
+    public interface Interface_x {
+        Boolean isOrgCacheAvailable();
+        void fireInvalidatePlatformCacheEvent(String context);
+        void invalidatePlatformCacheImmediate();
+    }
+
+
+    /**
+     * @description The CacheBuilder.doLoad() method always requries a string parameter, even if it's not being used
+     * This acts as a placeholder for implementations of CacheBuilder that are not using the parameter
+     */
+    public static final String CacheBuilderStubParameter = 'npsp';
+
+    /**
+     * @description The expected name for the platform cache partition created in the customer org
      */
     private static final String NPSP_CACHE_NAME = 'local.npsp';
 
+    /** @description Store instance for Singleton pattern; testVisible to allow for a mocked version */
+    @TestVisible
+    private static UTIL_PlatformCache instance;
+
     /**
-     * @description Platform Organization Cache
+     * @description Platform Organization Cache. This is set by isOrgCacheAvailabe() when called
      */
-    public static Cache.OrgPartition orgCache;
+    public Cache.OrgPartition orgCache {
+        get {
+            return orgCache;
+        } set;
+    }
+
+    /**
+     * @description Is there a cache available?
+     */
+    public Boolean isOrgCacheAvailable {
+        get {
+            return isOrgCacheAvailable;
+        } set;
+    }
 
     /**
      * @description Has the Org Cache been retrieved? (OrgCache can still be null if there is no cache to retrieve)
      */
-    private static Boolean orgCacheRetrieved = false;
+    private Boolean orgCacheRetrieved = false;
+
+    /**
+     * @description Get the singleton instance of the UTIL_CurrencyCache class
+     * @return UTIL_CurrencyCache.Interface_x
+     */
+    public static UTIL_PlatformCache getInstance() {
+        if (instance == null) {
+            instance = new UTIL_PlatformCache();
+        }
+        return instance;
+    }
+
+    private UTIL_PlatformCache() {
+        this.isOrgCacheAvailable = initCacheProperties();
+    }
+
+    public Boolean isOrgCacheAvailable() {
+        return this.isOrgCacheAvailable;
+    }
 
     /**
     * @description Returns true if an organization cache is available for npsp AND initializes the
     * organization cache static var above.
     */
-    public static Boolean isOrgCacheAvailable() {
-        if (!orgCacheRetrieved) {
+    private Boolean initCacheProperties() {
+        if (!this.orgCacheRetrieved) {
             try {
-                orgCache = Cache.Org.getPartition(NPSP_CACHE_NAME);
+                this.orgCache = Cache.Org.getPartition(NPSP_CACHE_NAME);
             } catch (Exception ex) {
                 // no cache available, so ignore the error and continue, but set the boolean var to true
                 // so we don't go through this code a second time
             }
-            orgCacheRetrieved = true;
+            this.orgCacheRetrieved = true;
         }
-        return orgCache != null;
+        return this.orgCache != null;
     }
 
+    /**
+     * @description Remove all CacheBuilder implementations in the current organization cache
+     */
+    public void fireInvalidatePlatformCacheEvent(String context) {
+        CacheInvalidation__e ci = new CacheInvalidation__e(
+            DataModified__c = context
+        );
+        EventBus.publish(ci);
+    }
+
+    /**
+     * @description Remove all CacheBuilder implementations in the current organization cache
+     */
+    public void invalidatePlatformCacheImmediate() {
+        if (!isOrgCacheAvailable() || orgCache.getKeys().size() == 0) {
+          return;
+        }
+
+        orgCache.remove(UTIL_CurrencyCache.CurrencyCache.class, CacheBuilderStubParameter);
+        orgCache.remove(TDTM_ObjectDataGateway.TriggerHandlerCache.class, CacheBuilderStubParameter);
+        orgCache.remove(CRLP_PlatformCache.RollupDefinitionsCache.class, CacheBuilderStubParameter);
+
+        this.orgCacheRetrieved = false;
+    }
 }

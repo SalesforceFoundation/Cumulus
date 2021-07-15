@@ -36,6 +36,9 @@
 */
 public inherited sharing class CRLP_Rollup_SEL {
 
+    /** @description Platform Cache instance, if available */
+    private static UTIL_PlatformCache platformCache = UTIL_PlatformCache.getInstance();
+    
     /**
      * @description Private static var to cache the Custom Metadata Type records.
      * In terms of limits, these DO use up Query Rows, but NOT Queries.
@@ -45,46 +48,59 @@ public inherited sharing class CRLP_Rollup_SEL {
     public static List<Rollup__mdt> cachedRollups {
         get {
             if (cachedRollups == null) {
-                cachedRollups = [
-                    SELECT
-                        Id,
-                        DeveloperName,
-                        MasterLabel,
-                        Active__c,
-                        Use_Fiscal_Year__c,
-                        Description__c,
-                        Operation__c,
-                        Time_Bound_Operation_Type__c,
-                        Integer__c,
-                        Is_Deleted__c,
-                        Filter_Group__c,
-                        Filter_Group__r.MasterLabel,
-                        Filter_Group__r.DeveloperName,
-                        Summary_Object__r.QualifiedApiName,
-                        Summary_Object__r.Label,
-                        Summary_Field__r.QualifiedApiName,
-                        Summary_Field__r.Label,
-                        Detail_Object__r.QualifiedApiName,
-                        Detail_Object__r.Label,
-                        Detail_Field__r.QualifiedApiName,
-                        Detail_Field__r.Label,
-                        Amount_Object__r.QualifiedApiName,
-                        Amount_Object__r.Label,
-                        Amount_Field__r.QualifiedApiName,
-                        Amount_Field__r.Label,
-                        Date_Object__r.QualifiedApiName,
-                        Date_Object__r.Label,
-                        Date_Field__r.QualifiedApiName,
-                        Date_Field__r.Label
-                    FROM Rollup__mdt
-                    WHERE Is_Deleted__c = false
-                    ORDER BY Summary_Object__c, MasterLabel
-                ];
-
+                if (platformCache.isOrgCacheAvailable) {
+                    cachedRollups = (List<Rollup__mdt>)platformCache.orgCache.get(
+                        CRLP_PlatformCache.RollupDefinitionsCache.class, UTIL_PlatformCache.CacheBuilderStubParameter
+                    );
+                } else {
+                    cachedRollups = queryRollupRecords();
+                }
             }
             return cachedRollups;
         }
         private set;
+    }
+
+    /**
+     * @description Perform the actual query of Rollup CMDT records. Normally this should not be called
+     * directly by any method, but is exposed for the CRLP_PlatformCache class.
+     */
+    public static List<Rollup__mdt> queryRollupRecords() {
+        return [
+            SELECT
+                Id,
+                DeveloperName,
+                MasterLabel,
+                Active__c,
+                Use_Fiscal_Year__c,
+                Description__c,
+                Operation__c,
+                Time_Bound_Operation_Type__c,
+                Integer__c,
+                Is_Deleted__c,
+                Filter_Group__c,
+                Filter_Group__r.MasterLabel,
+                Filter_Group__r.DeveloperName,
+                Summary_Object__r.QualifiedApiName,
+                Summary_Object__r.Label,
+                Summary_Field__r.QualifiedApiName,
+                Summary_Field__r.Label,
+                Detail_Object__r.QualifiedApiName,
+                Detail_Object__r.Label,
+                Detail_Field__r.QualifiedApiName,
+                Detail_Field__r.Label,
+                Amount_Object__r.QualifiedApiName,
+                Amount_Object__r.Label,
+                Amount_Field__r.QualifiedApiName,
+                Amount_Field__r.Label,
+                Date_Object__r.QualifiedApiName,
+                Date_Object__r.Label,
+                Date_Field__r.QualifiedApiName,
+                Date_Field__r.Label
+            FROM Rollup__mdt
+            WHERE Is_Deleted__c = false
+            ORDER BY Summary_Object__c, MasterLabel
+        ];
     }
 
     /**

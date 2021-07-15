@@ -54,7 +54,6 @@ private class UTIL_CurrencyCache_TEST {
         UTIL_CurrencyCache.instance = mockcurrCache;
 
         System.AssertEquals(False, UTIL_CurrencyCache.getInstance().isOrgCacheAvailable());
-        System.AssertEquals(null, UTIL_CurrencyCache.orgCache);
         System.AssertEquals( 1.25, UTIL_CurrencyCache.getEffectiveExchangeRate('CAD', Date.newInstance(2017,3,15)),
             'Should return the effective rate for 3/15/2017');
         System.AssertEquals( 1.50, UTIL_CurrencyCache.getEffectiveExchangeRate('CAD', Date.newInstance(2010,01,01)),

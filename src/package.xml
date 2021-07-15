@@ -222,6 +222,7 @@
         <members>CRLP_Operation</members>
         <members>CRLP_Operation_SVC</members>
         <members>CRLP_Operation_TEST</members>
+        <members>CRLP_PlatformCache</members>
         <members>CRLP_Query_SEL</members>
         <members>CRLP_Query_SEL_TEST</members>
         <members>CRLP_RDSkew_BATCH</members>
@@ -857,6 +858,7 @@
         <name>ApexPage</name>
     </types>
     <types>
+        <members>NPSP_CacheInvalidation</members>
         <members>TDTM_Account</members>
         <members>TDTM_AccountSoftCredit</members>
         <members>TDTM_Address</members>
@@ -1490,6 +1492,7 @@
         <members>Trigger_Handler__c.Trigger_Action__c</members>
         <members>Trigger_Handler__c.User_Managed__c</members>
         <members>Trigger_Handler__c.Usernames_to_Exclude__c</members>
+        <members>CacheInvalidation__e.DataModified__c</members>
         <members>Data_Import_Field_Mapping_Set__mdt.Data_Import_Object_Mapping_Set__c</members>
         <members>Data_Import_Field_Mapping__mdt.Data_Import_Field_Mapping_Set__c</members>
         <members>Data_Import_Field_Mapping__mdt.Is_Deleted__c</members>
@@ -3717,6 +3720,7 @@
         <members>Relationship_Sync_Excluded_Fields__c</members>
         <members>Schedulable__c</members>
         <members>Trigger_Handler__c</members>
+        <members>CacheInvalidation__e</members>
         <members>Data_Import_Field_Mapping_Set__mdt</members>
         <members>Data_Import_Field_Mapping__mdt</members>
         <members>Data_Import_Object_Mapping_Set__mdt</members>
@@ -4061,6 +4065,12 @@
         <members>Trigger_Handler__c-iw</members>
         <members>Trigger_Handler__c-ja</members>
         <members>Trigger_Handler__c-nl_NL</members>
+        <members>CacheInvalidation__e-de</members>
+        <members>CacheInvalidation__e-en_US</members>
+        <members>CacheInvalidation__e-es</members>
+        <members>CacheInvalidation__e-fr</members>
+        <members>CacheInvalidation__e-ja</members>
+        <members>CacheInvalidation__e-nl_NL</members>
         <members>Data_Import_Field_Mapping_Set__mdt-de</members>
         <members>Data_Import_Field_Mapping_Set__mdt-en_GB</members>
         <members>Data_Import_Field_Mapping_Set__mdt-en_US</members>

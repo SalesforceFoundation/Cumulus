@@ -49,6 +49,9 @@ public class UTIL_CurrencyCache implements UTIL_CurrencyCache.Interface_x {
     /* Retrieve and cache the household settings the first time this class is loaded only */
     private static final npo02__Households_Settings__c householdSettings = UTIL_CustomSettingsFacade.getHouseholdsSettings();
 
+    /* Platform Cache */
+    private static UTIL_PlatformCache platformCache = UTIL_PlatformCache.getInstance();
+
     // ====================================================================
     // PRIMARY EXPOSED STATIC METHODS
     // ====================================================================
@@ -120,7 +123,7 @@ public class UTIL_CurrencyCache implements UTIL_CurrencyCache.Interface_x {
      */
     public static Cache.OrgPartition orgCache {
         get {
-            return UTIL_PlatformCache.orgCache;
+            return platformCache.orgCache;
         } private set;
     }
 
@@ -208,7 +211,7 @@ public class UTIL_CurrencyCache implements UTIL_CurrencyCache.Interface_x {
     * @description Returns true if an organization cache is available
     */
     public boolean isOrgCacheAvailable() {
-        return UTIL_PlatformCache.isOrgCacheAvailable();
+        return platformCache.isOrgCacheAvailable();
     }
 
     /**

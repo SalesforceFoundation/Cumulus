@@ -2,6 +2,7 @@
   "orgName": "NPSP - Dev Workspace",
   "edition": "Developer",
   "hasSampleData": "false",
+  "features": [ "PlatformCache" ],
   "settings": {
     "userManagementSettings": {
       "enableNewProfileUI": true

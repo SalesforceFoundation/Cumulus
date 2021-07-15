@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Event thrown when the NPSP Platform cache need to be invalidated due to a change in the data being cached</description>
+    <eventType>HighVolume</eventType>
+    <fields>
+        <fullName>DataModified__c</fullName>
+        <description>What data was modified to cause the cache invalidation</description>
+        <externalId>false</externalId>
+        <isFilteringDisabled>false</isFilteringDisabled>
+        <isNameField>false</isNameField>
+        <isSortingDisabled>false</isSortingDisabled>
+        <label>Data Modified</label>
+        <length>200</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>NPSP Cache Invalidation</label>
+    <pluralLabel>NPSP Cache Invalidations</pluralLabel>
+    <publishBehavior>PublishImmediately</publishBehavior>
+</CustomObject>

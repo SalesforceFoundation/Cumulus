@@ -227,6 +227,9 @@ public class CMT_MetadataAPI {
                     callbackHandler.performErrorHandler(callbackParams, JSON.serializePretty(statusMap).left(255));
                 }
             }
+
+            UTIL_PlatformCache platformCache = UTIL_PlatformCache.getInstance();
+            platformCache.fireInvalidatePlatformCacheEvent('Custom Metadata Changed');
         }
 
         /**

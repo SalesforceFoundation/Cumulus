@@ -88,6 +88,10 @@ public without sharing class TDTM_ObjectDataGateway implements TDTM_iTableDataGa
 
     /*******************************************************************************************************
      * @description holds the trigger handlers cached in a list, to avoid repetitive soql calls.
+     * This will first attempt to retreive the trigger handler records from the platform cache, if available.
+     * If not, it will query the trigger handler records directly.
+     * In either case, the result is setting this static getter var with a "cached" set of Trigger Handler records
+     * to use through the rest of the execution context.
      */
     public static List<Trigger_Handler__c> listTH {
         get {
@@ -95,16 +99,41 @@ public without sharing class TDTM_ObjectDataGateway implements TDTM_iTableDataGa
                 listTH = ADV_PackageInfo_SVC.getApiNPSP().getDefaultTdtmConfigNpspRecords(listTH);
             } else {
                 if (listTH == null) {
-                    listTH =  [ SELECT Asynchronous__c, Class__c, Load_Order__c, 
-                                    Object__c, Active__c, Usernames_to_Exclude__c,
-                                    Trigger_Action__c, User_Managed__c 
-                                FROM Trigger_Handler__c 
-                                ORDER BY Load_Order__c];
+                    UTIL_PlatformCache platformCache = UTIL_PlatformCache.getInstance();
+                    if (platformCache.isOrgCacheAvailable) {
+                        listTH = (List<Trigger_Handler__c>)platformCache.orgCache.get(
+                            TriggerHandlerCache.class, UTIL_PlatformCache.CacheBuilderStubParameter
+                        );
+                        if (listTH != null && listTH.isEmpty()) {
+                            listTH = null;
+                        }
+                    }
+                    if (listTH == null) {
+                        listTH = queryTriggerHandlerRecords();
+                    }
                 }
             }
             return listTH;
         }
         set;
+    }
+
+    /**
+     * @description The sole query of the TriggerHandler object to retrieve trigger handler records
+     */
+    private static List<Trigger_Handler__c> queryTriggerHandlerRecords() {
+        return [
+            SELECT Asynchronous__c, 
+                Class__c, 
+                Load_Order__c, 
+                Object__c, 
+                Active__c, 
+                Usernames_to_Exclude__c,
+                Trigger_Action__c, 
+                User_Managed__c 
+            FROM Trigger_Handler__c 
+            ORDER BY Load_Order__c
+        ];
     }
 
     /**
@@ -130,4 +159,24 @@ public without sharing class TDTM_ObjectDataGateway implements TDTM_iTableDataGa
         }
         rowCount = listTH.size();
     }
+
+    // ====================================================================
+    // CACHEBUILDER CLASS TO MANAGE RETRIEVING/PUTTING ELEMENTS INTO THE CACHE
+    // ====================================================================
+
+    /**
+     * @description CacheBuilder implementation to retrieve/load TriggerHandler__c records.
+     * CacheBuilder is smart enough to use the values in the cache if they exist and if not it will call the
+     * code witin the doLoad() method below to retrieve the values and then store them in the cache so they're
+     * available on the next call.
+     * The string param in the doLoad() method is not used in the TriggerHandlerCache implementation, but is required
+     * by CacheBuilder.
+     */
+    public class TriggerHandlerCache implements Cache.CacheBuilder {
+        public List<Trigger_Handler__c> doLoad(String dummyParam) {
+            List<Trigger_Handler__c> th = queryTriggerHandlerRecords();
+            return th;
+        }
+    }
+
 }

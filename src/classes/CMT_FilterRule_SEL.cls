@@ -35,6 +35,9 @@
 */
 public without sharing class CMT_FilterRule_SEL {
 
+    /** @description Platform Cache instance, if available */
+    private static UTIL_PlatformCache platformCache = UTIL_PlatformCache.getInstance();
+
     /**
      * @description Private static vars to cache the Custom Metadata Type records.
      * In terms of limits, these DO use up Query Rows, but NOT Queries.
@@ -44,11 +47,13 @@ public without sharing class CMT_FilterRule_SEL {
     private static List<Filter_Group__mdt> cachedFilterGroups {
         get {
             if (cachedFilterGroups == null) {
-                cachedFilterGroups = [SELECT Id, MasterLabel, DeveloperName, Description__c, Is_Deleted__c,
-                            (SELECT Id, Is_Deleted__c FROM Filter_Rules__r WHERE Is_Deleted__c = false)
-                        FROM Filter_Group__mdt
-                        WHERE Is_Deleted__c = false
-                        ORDER BY MasterLabel];
+                if (platformCache.isOrgCacheAvailable) {
+                    cachedFilterGroups = (List<Filter_Group__mdt>)platformCache.orgCache.get(
+                        CRLP_PlatformCache.FilterGroupDefinitionsCache.class, UTIL_PlatformCache.CacheBuilderStubParameter
+                    );
+                } else {
+                    cachedFilterGroups = queryFilterGroupRecords();
+                }
             }
             return cachedFilterGroups;
         } private set;
@@ -58,16 +63,44 @@ public without sharing class CMT_FilterRule_SEL {
     private static List<Filter_Rule__mdt> cachedFilterRules {
         get {
             if (cachedFilterRules == null) {
-                cachedFilterRules = [SELECT Id, MasterLabel, DeveloperName, Filter_Group__r.DeveloperName,
-                                Filter_Group__c, Field__r.QualifiedApiName, Field__r.MasterLabel, Is_Deleted__c,
-                                Object__r.QualifiedApiName, Object__r.MasterLabel, Operator__c, Constant__c
-                        FROM Filter_Rule__mdt
-                        WHERE Is_Deleted__c = false
-                        ORDER BY Filter_Group__c];
+                if (platformCache.isOrgCacheAvailable) {
+                    cachedFilterRules = (List<Filter_Rule__mdt>)platformCache.orgCache.get(
+                        CRLP_PlatformCache.FilterGroupDefinitionsCache.class, UTIL_PlatformCache.CacheBuilderStubParameter
+                    );
+                } else {
+                    cachedFilterRules = queryFilterRuleRecords();
+                }
             }
             return cachedFilterRules;
         }
         private set;
+    }
+
+    /**
+     * @description Perform the actual query of FilterGroup CMDT records. Normally this should not be called
+     * directly by any method, but is exposed for the CRLP_PlatformCache class.
+     */
+    public static List<Filter_Group__mdt> queryFilterGroupRecords() {
+        return [SELECT Id, MasterLabel, DeveloperName, Description__c, Is_Deleted__c,
+                    (SELECT Id, Is_Deleted__c FROM Filter_Rules__r WHERE Is_Deleted__c = false)
+                FROM Filter_Group__mdt
+                WHERE Is_Deleted__c = false
+                ORDER BY MasterLabel
+            ];
+    }
+
+    /**
+     * @description Perform the actual query of FilterGroup CMDT records. Normally this should not be called
+     * directly by any method, but is exposed for the CRLP_PlatformCache class.
+     */
+    public static List<Filter_Rule__mdt> queryFilterRuleRecords() {
+        return [SELECT Id, MasterLabel, DeveloperName, Filter_Group__r.DeveloperName,
+                    Filter_Group__c, Field__r.QualifiedApiName, Field__r.MasterLabel, Is_Deleted__c,
+                    Object__r.QualifiedApiName, Object__r.MasterLabel, Operator__c, Constant__c
+                FROM Filter_Rule__mdt
+                WHERE Is_Deleted__c = false
+                ORDER BY Filter_Group__c
+            ];
     }
 
     /**

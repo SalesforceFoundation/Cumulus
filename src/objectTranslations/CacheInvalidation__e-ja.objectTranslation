@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value><!-- Cache Invalidation --></value>
+    </caseValues>
+    <fields>
+        <label><!-- Data Modified --></label>
+        <name>DataModified__c</name>
+    </fields>
+</CustomObjectTranslation>
