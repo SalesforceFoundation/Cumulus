@@ -1022,6 +1022,14 @@ public class UTIL_UnitTestData_TEST {
     }
 
     /**
+    * @description Assert a Visualforce page does not have error messages displayed
+    */
+    public static void assertPageHasNoErrors() {
+        List<ApexPages.Message> pageMessages = ApexPages.getMessages();
+        System.assertEquals(0, pageMessages.size(), 'Expected page does not contain any error messages');
+    }
+
+    /**
      * @description Assert a Visualforce page has an error message displayed
      * @param expectedMsg Expected error message
      * @return void

@@ -88,9 +88,35 @@ global class ERR_Handler_API {
     * @description Creates an error record from an exception, stores it in the database (if enabled), and sends error
     *              notifications (if enabled).
     * @param e Exception to create error record from.
-    * @return context The context the exception was raised on.
+    * @param context The context the exception was raised on.
     */
     global static void processError(Exception e, String context) {
         ERR_Handler.processError(e, context);
+    }
+
+    /******************************************************************************************************
+     * @description Creates error records from DML results, stores in database (if enabled) and sends error
+     *              notification (if enabled)
+     * @param dmlResult The results of a single DML operation performed using the Database class.
+     * @param records The records the DML operation was performed on.
+     * @param context The context the errors were raised on
+     * @param displayErrors Indicates if errors should be displayed on a page
+     */
+
+    global static void processDMLErrors(
+            List<Object> dmlResult, List<SObject> records, String context, Boolean displayErrors) {
+
+        ERR_Handler.Errors errors = new ERR_Handler.Errors();
+
+        if (displayErrors) {
+            errors = ERR_Handler.getErrors(dmlResult, records);
+        } else {
+            errors = ERR_Handler.getErrorsOnly(dmlResult, records);
+        }
+
+        if (errors.errorsExist) {
+            ERR_Handler.processErrorsOnly(errors, context);
+        }
+
     }
 }
