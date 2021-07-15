@@ -306,6 +306,7 @@
         <members>GE_PaymentServices_TEST</members>
         <members>GE_Template</members>
         <members>GE_Template_TEST</members>
+        <members>GEM_TEST</members>
         <members>GS_ApplicationStatusController</members>
         <members>GS_ApplicationStatusController_TEST</members>
         <members>GS_ChecklistSetup</members>
