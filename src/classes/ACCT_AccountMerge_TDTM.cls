@@ -106,13 +106,13 @@ public class ACCT_AccountMerge_TDTM extends TDTM_Runnable {
             }
         }
 
-        HouseholdNamingService.renameHHAccounts(listHHId);
+        HouseholdAccounts.renameHHAccounts(listHHId);
 
         listTemp.addAll(listHHId);
         listTemp.addAll(listOne2OneId);
         if (listTemp.size() > 0) {
             HH_OppContactRoles_TDTM.recreateHouseholdSoftCredits(listTemp);
-            ACCT_IndividualAccounts_TDTM.rollupAccounts(listTemp);
+            HouseholdAccounts.rollupAccounts(listTemp);
         }
         
         listTemp.clear();

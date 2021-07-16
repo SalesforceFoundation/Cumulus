@@ -61,7 +61,7 @@ global virtual with sharing class ADV_Adapter {
             throw new AdapterException(Label.adapterException);
         }
 
-        ACCT_IndividualAccounts_TDTM.rollupAccounts(listAccountId);
+        HouseholdAccounts.rollupAccounts(listAccountId);
     }
 
     /*******************************************************************************************************
@@ -77,7 +77,7 @@ global virtual with sharing class ADV_Adapter {
             throw new AdapterException(Label.adapterException);
         }
 
-        ACCT_IndividualAccounts_TDTM.moveOppsToContactAccount(mapContactIdAccountIdNew, mapContactIdAccountIdOld);
+        HouseholdAccounts.moveOppsToContactAccount(mapContactIdAccountIdNew, mapContactIdAccountIdOld);
     }
 
     /*******************************************************************************************************

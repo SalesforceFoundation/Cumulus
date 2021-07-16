@@ -34,8 +34,19 @@
 */
 public inherited sharing class Contacts extends fflib_SObjects {
 
-    private Map<Id, Contact> oldMap;
+    public Map<Id, Contact> oldMap;
     private Boolean isUpdate = false;
+
+    @TestVisible
+    private static ContactAndOrgSettings contactAndOrgSettings {
+        get {
+            if (contactAndOrgSettings == null) {
+                contactAndOrgSettings = new ContactAndOrgSettings();
+            }
+            return contactAndOrgSettings;
+        }
+        set;
+    }
 
     @TestVisible
     private ContactService contactService {
@@ -172,6 +183,38 @@ public inherited sharing class Contacts extends fflib_SObjects {
                     new ContactsInLegacyHouseholds(contactsInHouseholds().getRecords());
             contactsInLegacyHouseholds.onAfterDelete();
         }
+    }
+
+    /**
+     * @description Determines whether or not Contacts belong to the BucketAccount, when
+     * Contacts are being inserted.
+     */
+    public Contacts bucketContacts_insertContext() {
+        return new Contacts(contactsWithoutAccounts());
+    }
+
+    public Contacts contactsAndOneToOneContacts_insertContext() {
+        List<Contact> contactsWithoutAccounts = new List<Contact>();
+        for (Contact contactRecord : (List<Contact>) getRecords()) {
+            if (needsHHAccount(contactRecord)) {
+                contactsWithoutAccounts.add(contactRecord);
+            }
+        }
+
+        if (isOneToOneEnabled()) {
+            for (Contact contactRecord : (List<Contact>) getRecords()) {
+                if (Households.isWithoutAccount(contactRecord)
+                        || Households.isOrganizationContact(contactRecord, accountFor(contactRecord))) {
+                    // Avoid creating a new contact with the 1:1 account of another contact
+                    if (contactRecord.AccountId != null) {
+                        contactRecord.AccountId = null;
+                    }
+
+                    contactsWithoutAccounts.add(contactRecord);
+                }
+            }
+        }
+        return new Contacts(contactsWithoutAccounts);
     }
 
     public List<Contact> forHouseholdName() {
@@ -491,6 +534,135 @@ public inherited sharing class Contacts extends fflib_SObjects {
         return new Contacts(contactsInHouseholdAccounts);
     }
 
+    public List<Contact> getOneToOneContactsToUpdate() {
+        List<Contact> oneToOneContactsToUpdate = new List<Contact>();
+        for (Contact contactRecord : (List<Contact>) getRecords()) {
+            Contact oldContact = oldMap.get(contactRecord.Id);
+
+            if (needsOne2OneAccountUpdate(contactRecord, oldContact)) {
+                oneToOneContactsToUpdate.add(contactRecord);
+            }
+        }
+        return oneToOneContactsToUpdate;
+    }
+
+    public Contact oldVersionOf(Contact con) {
+        return oldMap.get(con.Id);
+    }
+
+    public List<Id> getHouseholdIdsToRename() {
+        List<Id> householdIdsToRename = new List<Id>();
+        for (Contact contactRecord : (List<Contact>) getRecords()) {
+            Contact oldContact = oldVersionOf(contactRecord);
+            if (needsHHAccountRename(contactRecord, oldContact)) {
+                householdIdsToRename.add(contactRecord.AccountId);
+            }
+        }
+        return householdIdsToRename;
+    }
+
+    public void resetDeprecatedFields() {
+        for (Contact contactRecord : (List<Contact>) getRecords()) {
+            // always clear this deprecated field to avoid confusing users.
+            contactRecord.npe01__SystemAccountProcessor__c = null;
+        }
+    }
+
+    public void keepPrivateContactsPrivate() {
+        for (Contact contactRecord : (List<Contact>) getRecords()) {
+            // for contacts marked private after they have been created, break the relationship from their account (any model)
+            if (contactRecord.AccountId != null && contactRecord.npe01__Private__c == true) {
+                contactRecord.AccountId = null;
+            }
+        }
+    }
+
+    public Set<Id> oldAccountIds() {
+        Set<Id> accountIds = new Set<Id>();
+        for (Contact contactRecord : oldMap.values()) {
+            accountIds.add(contactRecord.AccountId);
+        }
+        return accountIds;
+    }
+
+    public Map<Id, Account> accountById {
+        get {
+            if (accountById == null) {
+                loadAccountByIdMap();
+            }
+            return accountById;
+        }
+        set;
+    }
+
+    public List<Contact> contactsWithoutAccounts() {
+        List<Contact> contactsWithoutAccounts = new List<Contact>();
+        for (Contact contactRecord : (List<Contact>) getRecords()) {
+            if (isMissingAccount(contactRecord)) {
+                contactsWithoutAccounts.add(contactRecord);
+            }
+        }
+        return contactsWithoutAccounts;
+    }
+
+    public Map<Id, Contact> getNewOwnerContactById() {
+        Map<Id, Contact> newOwnerContactById = new Map<Id, Contact>();
+        for (Contact contactRecord : (List<Contact>) getRecords()) {
+            Contact oldContact = oldMap.get(contactRecord.Id);
+            if (contactRecord.OwnerId != oldContact.OwnerId) {
+                newOwnerContactById.put(contactRecord.Id, contactRecord);
+            }
+        }
+        return newOwnerContactById;
+    }
+
+    /**
+     * @description Determines whether or not the contact requires a household account.
+     * @param  contactRecord The contact to verify.
+     */
+    public Boolean needsHHAccount(Contact contactRecord) {
+        return CAO_Constants.isHHAccountModel()
+                && contactRecord.AccountId == null
+                && contactRecord.npe01__Private__c != true;
+    }
+
+    /*******************************************************************************************************
+    * @description returns whether changes in the contact require an update to the 1:1 account
+    * @param contactRecord the new version of the Contact
+    * @param oldContact the old version of the Contact
+    * @return Boolean
+    */
+    private Boolean needsOne2OneAccountUpdate(Contact contactRecord, Contact oldContact) {
+        if (contactRecord.npe01__Organization_Type__c != CAO_Constants.ONE_TO_ONE_ORGANIZATION_TYPE) {
+            return false;
+        }
+
+        if(contactRecord != null && oldContact == null) {
+            return true;
+        }
+
+        String newFirst = contactRecord.FirstName == null ? '' : contactRecord.FirstName;
+        String oldFirst = oldContact.FirstName == null ? '' : oldContact.FirstName;
+        String newLast = contactRecord.LastName == null ? '' : contactRecord.LastName;
+        String oldLast = oldContact.LastName == null ? '' : oldContact.LastName;
+
+        return (contactRecord.AccountId != oldContact.AccountId ||
+                !newFirst.equals(oldFirst) ||
+                !newLast.equals(oldLast) ||
+                contactRecord.MailingStreet != oldContact.MailingStreet ||
+                contactRecord.MailingCity != oldContact.MailingCity ||
+                contactRecord.MailingState != oldContact.MailingState ||
+                contactRecord.MailingPostalCode != oldContact.MailingPostalCode ||
+                contactRecord.MailingCountry != oldContact.MailingCountry ||
+                contactRecord.OtherStreet != oldContact.OtherStreet ||
+                contactRecord.OtherCity != oldContact.OtherCity ||
+                contactRecord.OtherState != oldContact.OtherState ||
+                contactRecord.OtherPostalCode != oldContact.OtherPostalCode ||
+                contactRecord.OtherCountry != oldContact.OtherCountry ||
+                contactRecord.Phone != oldContact.Phone ||
+                contactRecord.Fax != oldContact.Fax);
+    }
+
     private List<NPSP_Contact> npspContactsInHouseholdAccounts() {
         List<NPSP_Contact> contactsInHouseholdAccounts = new List<NPSP_Contact>();
         for (SObject so : getRecords()) {
@@ -736,8 +908,61 @@ public inherited sharing class Contacts extends fflib_SObjects {
         return con.MasterRecordId != null;
     }
 
-    private Contact oldVersionOf(Contact con) {
-        return oldMap.get(con.Id);
+    /*******************************************************************************************************
+    * @description returns whether changes in the contact require a rename of a HH Account
+    * @param contactRecord the new version of the Contact
+    * @param oldContact the old version of the Contact
+    * @return Boolean
+    */
+    private Boolean needsHHAccountRename(Contact contactRecord, Contact oldContact) {
+        if (contactRecord.npe01__Organization_Type__c != CAO_Constants.HH_ACCOUNT_TYPE) {
+            return false;
+        }
+
+        if (contactRecord != null && oldContact == null) {
+            return true;
+        }
+
+        contactRecord.FirstName = contactRecord.FirstName == null ? '' : contactRecord.FirstName;
+        contactRecord.LastName = contactRecord.LastName == null ? '' : contactRecord.LastName;
+
+        // check all household naming fields for changes
+        for(String fieldName : new HouseholdNamingService().getHouseholdNamingContactFields()) {
+            String currentName;
+            String oldName;
+
+            //separate cross object references, i.e. account.name
+            List<String> splitFields = (fieldName.split('\\.',0));
+            if (splitFields.size() > 1) {
+                SObject sObj = contactRecord.getSObject(splitFields[0]);
+                if (sObj != null) {
+                    currentName = sObj.Id;
+                }
+                sObj = oldContact.getSObject(splitFields[0]);
+                if (sObj != null) {
+                    oldName = sObj.Id;
+                }
+            } else {
+                currentName = String.valueOf(contactRecord.get(fieldName));
+                oldName = String.valueOf(oldContact.get(fieldName));
+            }
+
+            // make sure to use case sensitive comparison
+            if (currentName == null) {
+                currentName = '';
+            }
+            if (oldName == null) {
+                oldName = '';
+            }
+            if (!currentName.equals(oldName)) {
+                return true;
+            }
+        }
+        if (contactRecord.npo02__Household_Naming_Order__c != oldContact.npo02__Household_Naming_Order__c ||
+            contactRecord.npo02__Naming_Exclusions__c != oldContact.npo02__Naming_Exclusions__c) {
+            return true;
+        }
+        return false;
     }
 
     /*******************************************************************************************************
@@ -747,9 +972,7 @@ public inherited sharing class Contacts extends fflib_SObjects {
      ********************************************************************************************************/
     @TestVisible
     private static void rollupContactsAndHouseholdsAfterMerge(Set<Id> winningContacts) {
-
-        ContactAndOrgSettings contactAndOrgSettings = new ContactAndOrgSettings();
-        if (contactAndOrgSettings.isHouseholdAccountModel()) {
+        if (contactAndOrgSettings.isHouseholdAccountModelEnabled()) {
             return;
         }
 
@@ -779,7 +1002,6 @@ public inherited sharing class Contacts extends fflib_SObjects {
     private Account accountFor(NPSP_Contact npspContact) {
         return accountsByIds().get(npspContact.accountId());
     }
-
 
     private Boolean isAnAccountOfTypeHousehold(Account a) {
         if (a == null) {
@@ -993,6 +1215,31 @@ public inherited sharing class Contacts extends fflib_SObjects {
         }
         TDTM_TriggerHandler.processDML(dmlWrapper);
         TDTM_ProcessControl.setRecursionFlag(TDTM_ProcessControl.flag.ADDR_hasRunContactOnBefore, false);
+    }
+
+    private Boolean isOneToOneEnabled() {
+        return CAO_Constants.isOneToOne();
+    }
+
+    private Boolean isMissingAccount(Contact contactRecord) {
+        return contactRecord.AccountId == null && contactRecord.npe01__Private__c != true;
+    }
+
+    private Account accountFor(Contact contactRecord) {
+        return accountById.get(contactRecord.AccountId);
+    }
+
+    private void loadAccountByIdMap() {
+        Set<Id> accountIds = new Set<Id>();
+        for (Contact contactRecord : (List<Contact>) getRecords()) {
+            accountIds.add(contactRecord.AccountId);
+        }
+
+        accountById = new Map<Id, Account>([
+                SELECT Id, npe01__One2OneContact__c, npe01__SYSTEM_AccountType__c
+                FROM Account
+                WHERE Id IN :accountIds
+        ]);
     }
 
 }

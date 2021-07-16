@@ -36,6 +36,7 @@ public inherited sharing class UnitOfWork {
 
     @TestVisible
     private List<SObject> objectsToInsert = new List<SObject>();
+    @TestVisible
     private List<SObject> objectsToUpdate = new List<SObject>();
 
     public Database.SaveResult[] save() {
@@ -69,8 +70,17 @@ public inherited sharing class UnitOfWork {
         for (String field : sobj.getPopulatedFieldsAsMap().keySet()) {
             Object newVal = sobj.get(field);
             Object val = inMap.get(field);
-            if (!val.equals(newVal)) {
+
+            if (val == null || !val.equals(newVal)) {
                 inMap.put(field, newVal);
+            }
+
+            // Specifically handle Strings to enforce case-sensitivity
+            if (val instanceof String) {
+                String strVal = (String) val;
+                if (!strVal.equals(newVal)) {
+                    inMap.put(field, newVal);
+                }
             }
         }
     }

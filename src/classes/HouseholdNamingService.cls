@@ -84,6 +84,10 @@ public without sharing class HouseholdNamingService {
         isHouseholdNamingDisabled = disable;
     }
 
+    public void updateHouseholdNameAndMemberCountAsync(List<Id> hhids) {
+       updateHouseholdNameAndMemberCountAsynchronously(hhids);
+    }
+
     /*******************************************************************************************************
     * @description future method to update the household names for the specified households
     * @param hhids the list of household Id's (either Household__c or Account Id's)
@@ -350,37 +354,6 @@ public without sharing class HouseholdNamingService {
         for (SObject household : records) {
             setNameAndGreetingsToReplacementText(household);
         }
-    }
-
-    /*******************************************************************************************************
-    * @description for the list of Household or Account Ids, update their Household Names
-    * @param accountIds the list of Household or Account Ids that need updating.
-    * @return void
-    */
-    public void renameHouseholdAccounts(List<Id> accountIds) {
-        renameHHAccounts(accountIds);
-    }
-
-    /*******************************************************************************************************
-    * @description for the list of Household or Account Ids, update their Household Names
-    * @param accountIds the list of Household or Account Ids that need updating.
-    * @return void
-    */
-    public static void renameHHAccounts(List<Id> accountIds) {
-        if (accountIds.isEmpty()) {
-            return;
-        }
-
-        if (shouldProcessSynchronously(accountIds)) {
-            HouseholdNamingService householdNamingService = new HouseholdNamingService();
-            householdNamingService.updateHouseholdNameAndMemberCount(accountIds);
-        } else {
-            HouseholdNamingService.updateHouseholdNameAndMemberCountAsynchronously(accountIds);
-        }
-    }
-
-    private static Boolean shouldProcessSynchronously(List<Id> accountIds) {
-        return accountIds.size() == 1 || System.isFuture() || System.isBatch() || System.isQueueable();
     }
 
     public void setNameFieldValuesOnHousehold(SObject household, HouseholdName householdName) {

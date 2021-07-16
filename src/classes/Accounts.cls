@@ -146,7 +146,7 @@ public inherited sharing class Accounts extends fflib_SObjects {
     }
 
     private void renameHouseholdsNeedingNameUpdate() {
-        householdNamingService.renameHouseholdAccounts(getHouseholdsNeedingNameUpdate());
+        HouseholdAccounts.renameHHAccounts(getHouseholdsNeedingNameUpdate());
     }
 
     private List<Id> getHouseholdsNeedingNameUpdate() {

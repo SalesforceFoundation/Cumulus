@@ -400,6 +400,7 @@
         <members>HH_NameSpec_TEST</members>
         <members>HH_OppContactRoles_TDTM</members>
         <members>HH_OppContactRoles_TEST</members>
+        <members>HouseholdAccountSelector</members>
         <members>HouseholdAccounts</members>
         <members>HouseholdName</members>
         <members>HouseholdNamingExclusionsCheckboxes</members>
@@ -414,6 +415,7 @@
         <members>HouseholdService_TEST</members>
         <members>HouseholdSettings</members>
         <members>Households</members>
+        <members>HouseholdsApp</members>
         <members>IAddress</members>
         <members>IGiftBatch</members>
         <members>INamingExclusions</members>
@@ -781,6 +783,7 @@
         <members>UTIL_Where_TEST</members>
         <members>UTIL_iSoqlListViewConsumer</members>
         <members>UnitOfWork</members>
+        <members>UnitOfWork_TEST</members>
         <members>fflib_Domain</members>
         <members>fflib_Objects</members>
         <members>fflib_SObjects</members>

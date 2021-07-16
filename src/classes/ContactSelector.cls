@@ -134,4 +134,49 @@ public inherited sharing class ContactSelector {
         return selectFields;
     }
 
+    public List<Contact> getContactsWithAccountAndAddressFields(List<Contact> contacts) {
+        return Database.query(buildContactSoql(contacts));
+    }
+
+    /*******************************************************************************************************
+     * @description Builds SOQL on Contact SObject. Fields include Household Naming Settings Format fields.
+     * @return String SOQL
+     */
+    @TestVisible
+    private String buildContactSoql(List<Contact> contacts) {
+        List<String> selectFields = getContactSelectionFields();
+
+        selectFields.addAll(
+                new HouseholdNamingService().getHouseholdNamingContactFields());
+
+        return new UTIL_Query()
+                .withSelectFields(selectFields)
+                .withFrom(String.valueOf(Contact.SObjectType))
+                .withWhere('Id IN :contacts')
+                .build();
+    }
+
+    private List<String> getContactSelectionFields() {
+        List<String> selectFields = new List<String>{
+                'Id', 'npe01__Private__c', 'AccountId', 'Account.npe01__SYSTEMIsIndividual__c',
+                'Account.npe01__SYSTEM_AccountType__c', 'Account.npe01__One2OneContact__c',
+                'npe01__Organization_Type__c', 'Account.Name',
+                'FirstName', 'LastName', 'OwnerId', 'Salutation', 'npo02__Naming_Exclusions__c',
+                'npo02__Household_Naming_Order__c',
+                'MailingStreet', 'MailingCity', 'MailingState', 'MailingPostalCode',
+                'MailingCountry', 'MailingLatitude', 'MailingLongitude',
+                'OtherStreet', 'OtherCity', 'OtherState', 'OtherPostalCode',
+                'OtherCountry', 'OtherLatitude', 'OtherLongitude',
+                'Phone', 'Fax'
+        };
+
+        if (orgConfig.isStateCountryPicklistsEnabled()) {
+            selectFields.add('MailingCountryCode');
+            selectFields.add('MailingStateCode');
+            selectFields.add('OtherCountryCode');
+            selectFields.add('OtherStateCode');
+        }
+        return selectFields;
+    }
+
 }

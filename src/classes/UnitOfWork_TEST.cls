@@ -30,31 +30,54 @@
 /**
 * @author Salesforce.org
 * @date 2021
-* @description Contact and Org Settings class in NPSP.
+* @description Tests for the Unit of Work.
 */
-public with sharing class ContactAndOrgSettings {
+@IsTest
+private class UnitOfWork_TEST {
 
-    npe01__Contacts_And_Orgs_Settings__c contactsAndOrgsSettings;
+    @IsTest
+    static void fieldsShouldBeUpdatedWhenNotPreviouslyPresentOnObjects() {
+        UnitOfWork uow = new UnitOfWork();
+        Contact c = new Contact(
+                Id = UTIL_UnitTestData_TEST.mockId(Contact.SObjectType),
+                LastName = 'test');
+        uow.registerDirty(new List<Contact>{
+                c
+        });
 
-    public ContactAndOrgSettings() {
-        this(UTIL_CustomSettingsFacade.getContactsSettings());
+        Contact c2 = new Contact(
+                Id = c.Id,
+                Title = 'Test Title'); // Field is not present on SObject in the UoW instance
+        uow.registerDirty(new List<Contact>{
+                c2
+        });
+
+        System.assert(uow.objectsToUpdate.size() == 1);
+        Contact c3 = (Contact) uow.objectsToUpdate.get(0);
+        System.assert(c3.Title == 'Test Title');
     }
 
-    @TestVisible
-    private ContactAndOrgSettings(npe01__Contacts_And_Orgs_Settings__c settings) {
-        this.contactsAndOrgsSettings = settings;
-    }
+    @IsTest
+    static void registerDirtyShouldBeCaseSensitive() {
+        UnitOfWork uow = new UnitOfWork();
+        Contact c = new Contact(
+                Id = UTIL_UnitTestData_TEST.mockId(Contact.SObjectType),
+                LastName = 'test');
+        uow.registerDirty(new List<Contact>{
+                c
+        });
 
-    public Boolean isHouseholdAccountModelEnabled() {
-        return contactsAndOrgsSettings.npe01__Account_Processor__c ==
-                CAO_Constants.HH_ACCOUNT_PROCESSOR;
-    }
+        Contact c2 = new Contact(
+                Id = c.Id,
+                LastName = 'TEST'); // Field has same value but different casing on SObject
+        // in the UoW instance
+        uow.registerDirty(new List<Contact>{
+                c2
+        });
 
-    public Boolean isBucketAccountEnabled() {
-        return CAO_Constants.isBucketModel();
-    }
-
-    public Boolean isOneToOneAccountsEnabled() {
-        return CAO_Constants.isOneToOne();
+        System.assert(uow.objectsToUpdate.size() == 1);
+        Contact c3 = (Contact) uow.objectsToUpdate.get(0);
+        System.assert(c3.LastName == 'TEST');
+        System.assert(c3.LastName.equals('TEST'));
     }
 }
