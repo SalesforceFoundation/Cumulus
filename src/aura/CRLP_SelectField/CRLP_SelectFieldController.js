@@ -34,8 +34,27 @@
      */
     handleMessage: function(cmp, event) {
         if (event.getParam("channel") === 'validateCmp') {
+            var fieldName = cmp.get('v.auraId');
             var inputCmp = cmp.find('selectField');
-            inputCmp.showHelpMessageIfInvalid();
+            var value = inputCmp.get("v.value");
+            if (value === undefined) {
+                value = '';
+            }
+
+            if (cmp.get('v.isRequired') && value === '') {
+                inputCmp.focus();
+
+                var channel = 'showToast';
+                var formattedLabel = event.getParam("message").replace("{0}", cmp.get("v.fieldLabel"));
+                var message = { type: 'warning', title: formattedLabel };
+
+                var sendMessage = $A.get('e.ltng:sendMessage');
+                sendMessage.setParams({
+                    'channel': channel,
+                    'message': message
+                });
+                sendMessage.fire();
+            }
         }
     }
 })

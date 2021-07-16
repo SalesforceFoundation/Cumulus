@@ -70,7 +70,6 @@
                                   name="{!v.fieldLabel}"
                                   label="{!v.fieldLabel}"
                                   value="{!v.apiName}"
-                                  required="{!v.isRequired}"
                                   onchange="{!c.changeField}"
                                   variant="label-hidden">
 

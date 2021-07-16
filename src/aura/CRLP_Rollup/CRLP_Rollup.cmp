@@ -145,7 +145,6 @@
                                                     name="{!v.labels.description}"
                                                     value="{!v.activeRollup.description}"
                                                     readonly="{!v.isReadOnly}"
-                                                    required="{!v.isReadOnly ? 'false' : 'true'}"
                                                     variant="{!v.isReadOnly ? '' : 'label-hidden'}"
                                                     />
                             </lightning:layoutItem>
@@ -217,8 +216,7 @@
                                                  readonly="{!v.isReadOnly}"
                                                  pattern="^\d{1,4}|10000$"
                                                  messageWhenPatternMismatch="{!v.labels.daysBackError}"
-                                                 variant="{!v.isReadOnly ? '' : 'label-hidden'}"
-                                                 required="{!v.isReadOnly ? 'false' : 'true'}"/>
+                                                 variant="{!v.isReadOnly ? '' : 'label-hidden'}" />
                             </lightning:layoutItem>
                         </aura:if>
                         <aura:if isTrue="{!v.renderMap.integerYears}">

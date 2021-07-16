@@ -635,6 +635,7 @@ public with sharing class CRLP_RollupUI_SVC {
                 'labelRD' => Schema.SObjectType.npe03__Recurring_Donation__c.getLabel(),
                 'labelBooleanTrue' => System.Label.labelBooleanTrue,
                 'labelBooleanFalse' => System.Label.labelBooleanFalse,
+                'labelMissingRequired' => System.Label.commonMissingRequiredFields,
                 'name' => Label.stgLabelName,
                 'namespacePrefix' => UTIL_Namespace.StrTokenNSPrefix(''),
                 'na' => Label.stgNotApplicable,

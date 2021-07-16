@@ -1413,14 +1413,27 @@
 
         //show help message in each child component SelectField
         if (!canSave) {
-            this.sendMessage(cmp, 'validateCmp');
+            this.sendMessage(cmp, 'validateCmp', cmp.get("v.labels.labelMissingRequired"));
         }
 
         //description and intValue set separately since we have direct access to these
         if (!activeRollup.description) {
-            cmp.find("descriptionInput").showHelpMessageIfInvalid();
+            cmp.find("descriptionInput").focus();
+
+            var channel = 'showToast';
+            var formattedLabel = cmp.get("v.labels.labelMissingRequired").replace("{0}", cmp.get("v.labels.description"));
+            var message = { type: 'warning', title: formattedLabel };
+
+            var sendMessage = $A.get('e.ltng:sendMessage');
+            sendMessage.setParams({
+                'channel': channel,
+                'message': message
+            });
+            sendMessage.fire();
+
             canSave = false;
         }
+
         /* TODO: a bug prevents this from working, so using explicit regex. replace when it's fixed.
         * validity is preferable since it checks for all validity, not just a regex
         var integerInput = cmp.find("integerInput");
@@ -1440,7 +1453,7 @@
         return canSave;
     },
 
-    /** 
+    /**
     * @description: disables save button if a detail field is required for a single result operation and detail field or rollup type isn't visible
     * @param detailField: selected detail field API name
     */
