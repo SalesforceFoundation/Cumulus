@@ -129,7 +129,7 @@ public without sharing class RD2_CancelCommitmentService {
                 request = buildCancelRequest(closedRecord.rd.CommitmentId__c);
             }
             else if (getRequestType(closedRecord) == PS_Request.ElevateEndpoint.COMMITMENT) {
-                request = buildGetCommitmentRequest(closedRecord.rd.CommitmentId__c);
+                request = PS_CommitmentRequest.buildGetRequest(closedRecord.rd.CommitmentId__c);
             }
             response = requestService.sendRequest(request);
 
@@ -151,19 +151,6 @@ public without sharing class RD2_CancelCommitmentService {
             .withCommitmentId(commitmentId)
             .withEndpoint(PS_Request.ElevateEndpoint.COMMITMENT_CANCEL)
             .withMethod(UTIL_Http.Method.POST)
-            .build();
-    }
-
-    /**
-    * @description Builds a commitment GET request for the provided commitment Id
-    * @param commitmentId Elevate recurring commitment Id
-    * @return HttpRequest
-    */
-    private HttpRequest buildGetCommitmentRequest(String commitmentId) {
-        return new PS_Request.Builder()
-            .withCommitmentId(commitmentId)
-            .withEndpoint(PS_Request.ElevateEndpoint.COMMITMENT)
-            .withMethod(UTIL_Http.Method.GET)
             .build();
     }
 

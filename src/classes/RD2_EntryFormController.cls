@@ -455,8 +455,7 @@ public with sharing class RD2_EntryFormController {
             UTIL_Http.Response response;
 
             try {
-                HttpRequest request = new PS_CommitmentRequest()
-                    .buildRequest(commitmentId, jsonRequestBody);
+                HttpRequest request = PS_CommitmentRequest.buildRequest(commitmentId, jsonRequestBody);
 
                 response = requestService.sendRequest(request);
 

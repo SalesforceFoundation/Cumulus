@@ -167,7 +167,6 @@ public with sharing class UTIL_Http_TEST {
             //set defaults
             statusCode = UTIL_Http.STATUS_CODE_OK;
             status = UTIL_Http.STATUS_OK;
-            body = '{"status":"ACTIVE"}';
         }
 
         /**
@@ -303,15 +302,6 @@ public with sharing class UTIL_Http_TEST {
             .withStatusCode(statusCode)
             .withStatus(status)
             .withBody(responseBody);
-
-        Test.setMock(HttpCalloutMock.class, callout);
-    }
-
-    public static void mockChargeElevateBatch(String responseBody){
-        CalloutMock callout = new CalloutMock()
-                .withStatusCode(UTIL_Http.STATUS_CODE_OK)
-                .withStatus(UTIL_Http.STATUS_OK)
-                .withBody(responseBody);
 
         Test.setMock(HttpCalloutMock.class, callout);
     }

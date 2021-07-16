@@ -47,7 +47,7 @@ private class ElevateBatchCapturer_TEST {
                 buildElevateBatchIds(200));
         Test.startTest();
         String validResponse = '{"id": "test-valid-group-id","status": "Processing"}';
-        UTIL_Http_TEST.mockChargeElevateBatch(validResponse);
+        UTIL_Http_TEST.mockSuccessCalloutResponse(validResponse);
         capturer.execute(null);
         Test.stopTest();
         System.assert(capturer.failReasonByElevateBatchId.isEmpty());
@@ -63,7 +63,7 @@ private class ElevateBatchCapturer_TEST {
 
         Test.startTest();
         String invalidResponse = '{"errors":[{"message":"id: Must be a valid UUID","localizedPaymentsMessage":"Bad Request","detailedMessage":"id: Must be a valid UUID"}]}';
-        UTIL_Http_TEST.mockChargeElevateBatch(invalidResponse);
+        UTIL_Http_TEST.mockSuccessCalloutResponse(invalidResponse);
         capturer.execute(null);
         Test.stopTest();
 
