@@ -59,18 +59,18 @@ public with sharing class CON_ContactMergeTDTM_TEST2 {
     @isTest
     private static void mergeContactsDifferentHHAccountManyRel() {
         // this creates 3 Household Accounts, each with 2 Contacts, and a default Address for each HH
-        ADDR_Addresses_TEST.createHHTestData(3, 2);
+        ADDR_Addresses_TEST.createTestData(3, 2);
         
-        Contact conWinner = ADDR_Addresses_TEST.listConT[1];
-        Contact conLoser1 = ADDR_Addresses_TEST.listConT[3];
-        Contact conLoser2 = ADDR_Addresses_TEST.listConT[4];
+        Contact conWinner = ADDR_Addresses_TEST.testContacts[1];
+        Contact conLoser1 = ADDR_Addresses_TEST.testContacts[3];
+        Contact conLoser2 = ADDR_Addresses_TEST.testContacts[4];
         
         // create relationships between the contacts in each household
         list<npe4__Relationship__c> listRel = new list<npe4__Relationship__c>();
         for (integer i = 0; i < 3; i++) {
             npe4__Relationship__c rel = new npe4__Relationship__c(
-                npe4__Contact__c = ADDR_Addresses_TEST.listConT[i * 2].id, 
-                npe4__RelatedContact__c = ADDR_Addresses_TEST.listConT[i * 2 + 1].id, 
+                npe4__Contact__c = ADDR_Addresses_TEST.testContacts[i * 2].id,
+                npe4__RelatedContact__c = ADDR_Addresses_TEST.testContacts[i * 2 + 1].id,
                 npe4__Type__c='Friend',
                 npe4__Status__c='Active',
                 npe4__Description__c='notes');
@@ -79,7 +79,7 @@ public with sharing class CON_ContactMergeTDTM_TEST2 {
         
         // create relationships between the winners & losers, and one of the other contacts
         // these will be the duplicate relationships that should be merged.
-        Contact conRel = ADDR_Addresses_TEST.listConT[0];
+        Contact conRel = ADDR_Addresses_TEST.testContacts[0];
         listRel.add(new npe4__Relationship__c(npe4__Contact__c=conWinner.Id, npe4__RelatedContact__c=conRel.Id));
         listRel.add(new npe4__Relationship__c(npe4__Contact__c=conLoser1.Id, npe4__RelatedContact__c=conRel.Id));
         listRel.add(new npe4__Relationship__c(npe4__Contact__c=conLoser2.Id, npe4__RelatedContact__c=conRel.Id));

@@ -1007,6 +1007,7 @@
         <members>Account.Membership_Span__c</members>
         <members>Account.Membership_Status__c</members>
         <members>Account.Number_of_Household_Members__c</members>
+        <members>Account.Undeliverable_Address__c</members>
         <members>Account_Soft_Credit__c.Account__c</members>
         <members>Account_Soft_Credit__c.Amount__c</members>
         <members>Account_Soft_Credit__c.Opportunity__c</members>
@@ -1063,6 +1064,7 @@
         <members>Address__c.Seasonal_Start_Month__c</members>
         <members>Address__c.State_Lower_District__c</members>
         <members>Address__c.State_Upper_District__c</members>
+        <members>Address__c.Undeliverable__c</members>
         <members>Address__c.Verification_Status__c</members>
         <members>Address__c.Verified_Date__c</members>
         <members>Address__c.Verified__c</members>
@@ -1118,6 +1120,7 @@
         <members>Contact.Primary_Affiliation__c</members>
         <members>Contact.Primary_Contact__c</members>
         <members>Contact.Soft_Credit_Last_N_Days__c</members>
+        <members>Contact.Undeliverable_Address__c</members>
         <members>Contact.is_Address_Override__c</members>
         <members>Custom_Column_Header__c.Field_Api_Name__c</members>
         <members>Custom_Column_Header__c.Index__c</members>

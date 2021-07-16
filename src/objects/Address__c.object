@@ -181,8 +181,8 @@
         <fullName>Formula_MailingAddress__c</fullName>
         <externalId>false</externalId>
         <formula>MailingStreet__c &amp; BR() &amp;
-MailingStreet2__c &amp; IF(ISBLANK(MailingStreet2__c), &quot;&quot;, BR()) &amp; 
-MailingCity__c &amp; IF(ISBLANK(MailingCity__c), &quot;&quot;, &quot;, &quot;) &amp; MailingState__c &amp; &quot; &quot; &amp; MailingPostalCode__c 
+MailingStreet2__c &amp; IF(ISBLANK(MailingStreet2__c), &quot;&quot;, BR()) &amp;
+MailingCity__c &amp; IF(ISBLANK(MailingCity__c), &quot;&quot;, &quot;, &quot;) &amp; MailingState__c &amp; &quot; &quot; &amp; MailingPostalCode__c
 &amp; IF(ISBLANK(MailingCountry__c), &quot;&quot;, BR() &amp; MailingCOuntry__c)</formula>
         <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
         <label>Mailing Address</label>
@@ -870,6 +870,17 @@ MailingCity__c &amp; IF(ISBLANK(MailingCity__c), &quot;&quot;, &quot;, &quot;) &
         <trackTrending>false</trackTrending>
         <type>Text</type>
         <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Undeliverable__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Indicates the address is undeliverable.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Indicates the address is undeliverable.</inlineHelpText>
+        <label>Undeliverable</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
     </fields>
     <fields>
         <fullName>Verification_Status__c</fullName>

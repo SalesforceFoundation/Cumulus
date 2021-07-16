@@ -155,11 +155,11 @@ private with sharing class ACCT_AccountMerge_TEST {
         setAccountModelForTest(CAO_Constants.HH_ACCOUNT_PROCESSOR);
 
         // this creates 3 Household Accounts, each with 2 Contacts, and a default Address for each HH
-        ADDR_Addresses_TEST.createHHTestData(cHH = 3, cCon = 2);
+        ADDR_Addresses_TEST.createTestData(cHH = 3, cCon = 2);
         
         // create an address override in each household
         for (integer i = 0; i < cHH; i++) {
-            Contact con = ADDR_Addresses_TEST.listConT[i * cCon + 1];
+            Contact con = ADDR_Addresses_TEST.testContacts[i * cCon + 1];
             con.MailingStreet = '123 abc';
             con.MailingCity = 'Seattle';
             con.MailingState = 'Washington';
@@ -167,13 +167,13 @@ private with sharing class ACCT_AccountMerge_TEST {
             con.MailingCountry = 'United States';
             con.is_Address_Override__c = true;
         }
-        update ADDR_Addresses_TEST.listConT;
+        update ADDR_Addresses_TEST.testContacts;
 
         // decide who wins (and remember who was primary contact)
-        Account accWinner = [SELECT Id, Name, npe01__One2OneContact__c FROM Account WHERE Id = :ADDR_Addresses_TEST.listAccT[1].Id];
+        Account accWinner = [SELECT Id, Name, npe01__One2OneContact__c FROM Account WHERE Id = :ADDR_Addresses_TEST.testAccounts[1].Id];
         list<Account> listAccLoser = new list<Account>();
-        listAccLoser.add(ADDR_Addresses_TEST.listAccT[0]);
-        listAccLoser.add(ADDR_Addresses_TEST.listAccT[2]);
+        listAccLoser.add(ADDR_Addresses_TEST.testAccounts[0]);
+        listAccLoser.add(ADDR_Addresses_TEST.testAccounts[2]);
         
         // merge the Accounts
         Test.startTest();

@@ -1028,6 +1028,15 @@ IF(NOT(ISNULL($Setup.npo02__Households_Settings__c.npo02__Membership_Grace_Perio
         <type>Number</type>
         <unique>false</unique>
     </fields>
+    <fields>
+        <fullName>Undeliverable_Address__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Indicates the address is undeliverable.</description>
+        <externalId>false</externalId>
+        <label>Undeliverable Billing Address</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
     <webLinks>
         <fullName>Manage_Household</fullName>
         <availability>online</availability>

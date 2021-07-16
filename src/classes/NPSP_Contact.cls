@@ -78,6 +78,10 @@ public inherited sharing class NPSP_Contact {
         mailingAddress(npspAddress);
     }
 
+    public void undeliverableAddress(Boolean isUndeliverableAddress) {
+        contact.Undeliverable_Address__c = isUndeliverableAddress;
+    }
+
     public Id currentAddress() {
         return contact.Current_Address__c;
     }

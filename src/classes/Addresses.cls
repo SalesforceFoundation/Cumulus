@@ -76,9 +76,7 @@ public inherited sharing class Addresses extends fflib_SObjects {
     }
 
     public void onAfterInsert() {
-        if (defaultAndSeasonalAddressesByHouseholdAccountId().size() > 0) {
-            refreshCurrentHHAddress(defaultAndSeasonalAddressesByHouseholdAccountId(), dmlWrapperLocal, false);
-        }
+        refreshCurrentHHAddress(addressesByAccountId(), dmlWrapperLocal, false);
 
         // we must process dmlWrapperLocal ourselves, so we can extract out the appropriate
         // errors
@@ -87,7 +85,7 @@ public inherited sharing class Addresses extends fflib_SObjects {
         ERR_Handler.Errors errors = TDTM_TriggerHandler.processDMLAllOrNothing
                 (dmlWrapperLocal, false);
         if (errors.errorsExist) {
-            putErrorsOnAddresses(errors, defaultAndSeasonalAddressesByHouseholdAccountId(), new Map<Id, Address__c>());
+            putErrorsOnAddresses(errors, addressesByAccountId(), new Map<Id, Address__c>());
         }
 
         // hack to detect empty addresses and delete them after we've propagated the change to all contacts and account
@@ -101,8 +99,8 @@ public inherited sharing class Addresses extends fflib_SObjects {
     }
 
     public void onAfterUpdate() {
-        if (defaultAndSeasonalWithChanges().size() > 0) {
-            refreshCurrentHHAddress(defaultAndSeasonalWithChanges(), dmlWrapperLocal, false);
+        if (addressChangesToSync().size() > 0) {
+            refreshCurrentHHAddress(addressChangesToSync(), dmlWrapperLocal, false);
         }
 
         if (nonDefaultsWithChanges().size() > 0) {
@@ -116,13 +114,15 @@ public inherited sharing class Addresses extends fflib_SObjects {
                 TDTM_TriggerHandler.processDMLAllOrNothing(
                         dmlWrapperLocal, false);
         if (errors.errorsExist) {
-            putErrorsOnAddresses(errors, defaultAndSeasonalWithChanges(), nonDefaultsWithChanges());
+            putErrorsOnAddresses(errors, addressChangesToSync(), nonDefaultsWithChanges());
         }
     }
 
     public void onAfterDelete() {
-        if (!addressesByHouseholdAccountId().isEmpty()) {
-            refreshCurrentHHAddress(addressesByHouseholdAccountId(), dmlWrapperLocal,
+        Map<Id, Address__c> addressesByAccountId = addressesByAccountId();
+        if (!addressesByAccountId.isEmpty()) {
+            clearAddressesForEachAccount(addressesByAccountId);
+            refreshCurrentHHAddress(addressesByAccountId, dmlWrapperLocal,
                     false);
         }
 
@@ -132,7 +132,13 @@ public inherited sharing class Addresses extends fflib_SObjects {
         ERR_Handler.Errors errors = TDTM_TriggerHandler.processDMLAllOrNothing(dmlWrapperLocal,
                 false);
         if (errors.errorsExist) {
-            putErrorsOnAddresses(errors, addressesByHouseholdAccountId(), new Map<Id, Address__c>());
+            putErrorsOnAddresses(errors, addressesByAccountId(), new Map<Id, Address__c>());
+        }
+    }
+
+    private void clearAddressesForEachAccount(Map<Id, Address__c> addressesByAccountId) {
+        for (Id accountId : addressesByAccountId.keySet()) {
+            addressesByAccountId.put(accountId, null);
         }
     }
 
@@ -154,15 +160,6 @@ public inherited sharing class Addresses extends fflib_SObjects {
         } private set;
     }
 
-    public Map<Id, Address__c> addressesByHouseholdAccountId() {
-        Map<Id, Address__c> mapAddressesByAcctId = new Map<Id, Address__c>(); // map of HH Accounts, and their default Address
-        for (Address__c address : (List<Address__c>) getRecords()) {
-            if (hasHouseholdAccount(address)) {
-                mapAddressesByAcctId.put(householdAccountIdFor(address), null);
-            }
-        }
-        return mapAddressesByAcctId;
-    }
 
     /*******************************************************************************************************
     * @description The main routine for finding the appropriate address to currently use for the
@@ -273,12 +270,16 @@ public inherited sharing class Addresses extends fflib_SObjects {
             }
 
             // update HH Account's Billing address fields
-            Account acc = new Account(Id = accId);
-            NPSP_HouseholdAccount npspHouseholdAccount = new NPSP_HouseholdAccount
-                    (accountsById.get(accId));
             NPSP_Address npspAddress = new NPSP_Address(addr);
-            if (npspHouseholdAccount.billingAddressIsDifferentFrom(npspAddress)) {
+
+            NPSP_HouseholdAccount npspHouseholdAccount = new NPSP_HouseholdAccount(accountsById.get(accId));
+
+            if (npspHouseholdAccount.billingAddressIsDifferentFrom(npspAddress) ||
+                npspHouseholdAccount.undeliverableAddressStatus() != npspAddress.isUndeliverable()) {
+
                 npspHouseholdAccount.billingAddress(npspAddress);
+                npspHouseholdAccount.setBillingAddressUndeliverableStatus(npspAddress.isUndeliverable());
+
                 listAccUpdate.add(npspHouseholdAccount.getRecord());
             }
 
@@ -305,13 +306,17 @@ public inherited sharing class Addresses extends fflib_SObjects {
                     if (npspContact.currentAddress() == null) {
                         npspContact.getRecord().is_Address_Override__c = false;
                     }
+                    if (npspContact.hasAddressOverride() == false) {
+                        npspContact.getRecord().Undeliverable_Address__c =
+                                npspHouseholdAccount.getRecord().Undeliverable_Address__c;
+                    }
                     if (npspContact.hasAddressOverride() == false ||
                             npspContact.currentAddress() == addr.Id) {
                         if (npspContact.mailingAddressIsDifferentFrom(npspAddress)) {
                             npspContact.currentAddress(npspAddress);
-                            listConUpdate.add(con);
                         }
                     }
+                    listConUpdate.add(con);
                 }
             }
         }
@@ -350,7 +355,7 @@ public inherited sharing class Addresses extends fflib_SObjects {
                         MailingStreet__c, MailingStreet2__c, MailingCity__c, MailingState__c,
                         MailingPostalCode__c, MailingCountry__c,
                         Seasonal_Start_Month__c, Seasonal_Start_Day__c, Seasonal_End_Month__c,
-                        Seasonal_End_Day__c, Geolocation__Latitude__s, Geolocation__Longitude__s
+                        Seasonal_End_Day__c, Geolocation__Latitude__s, Geolocation__Longitude__s, Undeliverable__c
                 FROM Address__c
                 WHERE Household_Account__c IN :acctIds
                 ORDER BY Default_Address__c DESC, LastModifiedDate ASC
@@ -480,7 +485,7 @@ public inherited sharing class Addresses extends fflib_SObjects {
         return listAddrS;
     }
 
-    public Map<Id, Address__c> defaultAndSeasonalWithChanges() {
+    public Map<Id, Address__c> addressChangesToSync() {
         Map<Id, Address__c> defaultAndSeasonalWithChanges = new Map<Id, Address__c>();
         Integer i = 0;
         for (Address__c addr : (List<Address__c>) getRecords()) {
@@ -488,9 +493,10 @@ public inherited sharing class Addresses extends fflib_SObjects {
             Address__c addrOld = oldVersionOf(addr);
             NPSP_Address npspAddressOld = new NPSP_Address(addrOld);
             // an address that is marked default needs to propagate to the household
-            if ((isNewDefault(addr, addrOld))
-                    // any seasonal address also need to be considered
-                    || isSeasonalChanged(addr, addrOld)) {
+            if (isNewDefault(addr, addrOld) ||
+                isSeasonalChanged(addr, addrOld) ||
+                (isUndeliverableStatusChanged(addr, addrOld)) && isDefault(addr)) {
+
                 defaultAndSeasonalWithChanges.put(householdAccountIdFor(addr), addr);
             } else if (!npspAddress.isEqualToIncludingAddressType(npspAddressOld, TRUE)) {
                 if (isDefault(addr)) {
@@ -502,6 +508,10 @@ public inherited sharing class Addresses extends fflib_SObjects {
         return defaultAndSeasonalWithChanges;
     }
 
+    private Boolean isUndeliverableStatusChanged(Address__c addr, Address__c addrOld) {
+        return addr.Undeliverable__c != addrOld.Undeliverable__c;
+    }
+
     public Map<Id, Address__c> nonDefaultsWithChanges() {
         Map<Id, Address__c> nonDefaultsWithChanges = new Map<Id, Address__c>();
         Integer i = 0;
@@ -509,14 +519,24 @@ public inherited sharing class Addresses extends fflib_SObjects {
             NPSP_Address npspAddress = new NPSP_Address(addr);
             Address__c addrOld = oldVersionOf(addr);
             NPSP_Address npspAddressOld = new NPSP_Address(addrOld);
-            if (!npspAddress.isEqualToIncludingAddressType(npspAddressOld, TRUE)) {
-                if (!isDefault(addr)) {
-                    nonDefaultsWithChanges.put(idOf(addr), addr);
-                }
+            if ((!npspAddress.isEqualToIncludingAddressType(npspAddressOld, TRUE) ||
+                isUndeliverableStatusChanged(addr, addrOld))) {
+
+                nonDefaultsWithChanges.put(idOf(addr), addr);
             }
             i++;
         }
         return nonDefaultsWithChanges;
+    }
+
+    public Map<Id, Address__c> addressesByAccountId() {
+        Map<Id, Address__c> mapAddressesByAcctId = new Map<Id, Address__c>(); // map of HH Accounts, and their default Address
+        for (Address__c address : (List<Address__c>) getRecords()) {
+            if (hasHouseholdAccount(address)) {
+                mapAddressesByAcctId.put(householdAccountIdFor(address), address);
+            }
+        }
+        return mapAddressesByAcctId;
     }
 
     public Map<Id, Address__c> defaultAndSeasonalAddressesByHouseholdAccountId() {
@@ -902,7 +922,7 @@ public inherited sharing class Addresses extends fflib_SObjects {
     private static Map<Id, Account> getAccountsByIds(Set<Id> acctIds) {
         return new Map<Id, Account>([
                 SELECT Id, BillingStreet, BillingCity, BillingState,
-                        BillingPostalCode, BillingCountry, BillingLatitude, BillingLongitude
+                        BillingPostalCode, BillingCountry, BillingLatitude, BillingLongitude, Undeliverable_Address__c
                 FROM Account
                 WHERE Id IN :acctIds
         ]);
@@ -985,7 +1005,10 @@ public inherited sharing class Addresses extends fflib_SObjects {
         for (Contact con : listCon) {
             NPSP_Contact npspContact = new NPSP_Contact(con);
             NPSP_Address npspAddress = new NPSP_Address(mapAddrIdAddr.get(npspContact.currentAddress()));
+
             npspContact.mailingAddress(npspAddress);
+            npspContact.undeliverableAddress(npspAddress.isUndeliverable());
+
             dmlWrapper.objectsToUpdate.add(npspContact.getRecord());
         }
     }

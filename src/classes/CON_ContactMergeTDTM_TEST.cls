@@ -49,8 +49,8 @@ private with sharing class CON_ContactMergeTDTM_TEST {
      */
     @TestSetup
     private static void createRecordData() {
-        ADDR_Addresses_TEST.createHHTestData(3, 2);
-        Contact overrideContact = ADDR_Addresses_TEST.listConT[ADDR_OVERRIDE_INDEX];
+        ADDR_Addresses_TEST.createTestData(3, 2);
+        Contact overrideContact = ADDR_Addresses_TEST.testContacts[ADDR_OVERRIDE_INDEX];
 
         overrideContact.MailingStreet = '1007 Mountain Drive';
         overrideContact.MailingCity = 'Gotham';

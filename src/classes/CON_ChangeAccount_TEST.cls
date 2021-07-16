@@ -382,9 +382,9 @@ public with sharing class CON_ChangeAccount_TEST {
         integer cCon = 2;
             
         // this creates 2 Household Accounts, each with 2 Contacts, and a default Address for each HH
-        ADDR_Addresses_TEST.createHHTestData(cHH, cCon);
+        ADDR_Addresses_TEST.createTestData(cHH, cCon);
         
-        Contact con = ADDR_Addresses_TEST.listConT[0];
+        Contact con = ADDR_Addresses_TEST.testContacts[0];
         
         // create their own address override
         con.MailingStreet = 'street override';
@@ -393,7 +393,7 @@ public with sharing class CON_ChangeAccount_TEST {
         update con;
 
         // move the first contact in the first account to the other account.
-        con.AccountId = ADDR_Addresses_TEST.listAccT[1].Id;
+        con.AccountId = ADDR_Addresses_TEST.testAccounts[1].Id;
         Test.startTest();
         update con;
         Test.stopTest();
@@ -407,8 +407,8 @@ public with sharing class CON_ChangeAccount_TEST {
             from Contact order by Id];
             
         // verify the contacts belong to correct account.
-        system.assertEquals(ADDR_Addresses_TEST.listConT[0].Id, listCon[0].Id);
-        system.assertEquals(ADDR_Addresses_TEST.listAccT[0].Id, listAcc[0].Id);
+        system.assertEquals(ADDR_Addresses_TEST.testContacts[0].Id, listCon[0].Id);
+        system.assertEquals(ADDR_Addresses_TEST.testAccounts[0].Id, listAcc[0].Id);
         system.assertEquals(listCon[0].AccountId, listAcc[1].Id);
         system.assertEquals(listCon[1].AccountId, listAcc[0].Id);
         system.assertEquals(listCon[2].AccountId, listAcc[1].Id);
@@ -425,7 +425,7 @@ public with sharing class CON_ChangeAccount_TEST {
         
         // verify the address was moved to the new acccount
         system.assertEquals(listCon[0].AccountId, addr.Household_Account__c);
-        system.assertNotEquals(ADDR_Addresses_TEST.listConT[0].Current_Address__c, listCon[0].Current_Address__c);
+        system.assertNotEquals(ADDR_Addresses_TEST.testContacts[0].Current_Address__c, listCon[0].Current_Address__c);
             
         // verify the contact's address is still the address override
         system.assertEquals(listCon[0].MailingStreet, addr.MailingStreet__c);

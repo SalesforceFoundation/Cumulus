@@ -122,7 +122,9 @@ public inherited sharing class ContactSelector {
                 'MailingStreet', 'MailingCity', 'MailingState',
                 'MailingPostalCode', 'MailingCountry', 'MailingLatitude',
                 'MailingLongitude',
-                'npe01__Primary_Address_Type__c'
+                'npe01__Primary_Address_Type__c',
+                'Undeliverable_Address__c',
+                'LastName'
         };
 
         if (orgConfig.isStateCountryPicklistsEnabled()) {

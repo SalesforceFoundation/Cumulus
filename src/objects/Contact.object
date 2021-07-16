@@ -1800,6 +1800,15 @@
         <type>Currency</type>
     </fields>
     <fields>
+        <fullName>Undeliverable_Address__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Indicates the address is undeliverable.</description>
+        <externalId>false</externalId>
+        <label>Undeliverable Mailing Address</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
         <fullName>is_Address_Override__c</fullName>
         <defaultValue>false</defaultValue>
         <description>When selected, NPSP will not sync this Contact's address with the Household Default or Seasonal Address. Use this to maintain a separate Mailing Address for this particular Contact.</description>

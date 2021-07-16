@@ -487,6 +487,10 @@ public inherited sharing class NPSP_Address implements IAddress {
         return addr.Geolocation__Latitude__s;
     }
 
+    public Boolean isUndeliverable() {
+        return addr.Undeliverable__c;
+    }
+
     /*******************************************************************************************************
     * @description utility to combine mailing street fields into a single string with embedded CR LF
     * @param addr the Address to look at

@@ -74,10 +74,10 @@ public with sharing class ADDR_Addresses_TEST2 {
     * @param cConT the number of Contacts to create per Household
     **********************************************************************************************************/
     private static void createHHTestData(Integer cHHT, Integer cConT) {
-        ADDR_Addresses_TEST.createHHTestData(cHHT, cConT);
-        listConT = ADDR_Addresses_TEST.listConT;
-        listAccT = ADDR_Addresses_TEST.listAccT;
-        listAddrT = ADDR_Addresses_TEST.listAddrT;
+        ADDR_Addresses_TEST.createTestData(cHHT, cConT);
+        listConT = ADDR_Addresses_TEST.testContacts;
+        listAccT = ADDR_Addresses_TEST.testAccounts;
+        listAddrT = ADDR_Addresses_TEST.testAddresses;
     }
 
     /*********************************************************************************************************
@@ -85,8 +85,8 @@ public with sharing class ADDR_Addresses_TEST2 {
     * @param cAddr the number of Address objects to create
     **********************************************************************************************************/
     private static void initTestAddr(Integer cAddr) {
-        ADDR_Addresses_TEST.initTestAddr(cAddr);
-        listAddrT = ADDR_Addresses_TEST.listAddrT;
+        ADDR_Addresses_TEST.buildTestAddress(cAddr);
+        listAddrT = ADDR_Addresses_TEST.testAddresses;
     }
     
     /*********************************************************************************************************
@@ -1079,7 +1079,7 @@ public with sharing class ADDR_Addresses_TEST2 {
             con.MailingCity = 'new city';
         }
         Test.startTest();
-        insert listConT; 
+        insert listConT;
         Test.stopTest();       
         
         // verify the Address objects split street.
@@ -1461,7 +1461,7 @@ public with sharing class ADDR_Addresses_TEST2 {
             con.MailingCity = 'new city';
         }
         Test.startTest();
-        insert listConT; 
+        insert listConT;
         Test.stopTest();       
 
         // verify that the HH and Contacts share the same address
@@ -1643,7 +1643,7 @@ public with sharing class ADDR_Addresses_TEST2 {
         }
 
         Test.startTest();
-        update listConT;         
+        update listConT;
         Test.stopTest();
         
         // verify that the new HH and Contacts share the same address
